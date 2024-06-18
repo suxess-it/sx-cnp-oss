@@ -17,7 +17,7 @@ fi
 
 if [ "${TARGET_TYPE}" == "K3D" ] || [ "${TARGET_TYPE}" == "KIND" ] ; then
 # create mkcert certs in alle namespaces with ingress
-for namespace in backstage kargo monitoring argocd keycloak kubecost falco; do
+for namespace in backstage kargo monitoring argocd keycloak kubecost falco komoplane; do
   kubectl create namespace ${namespace}
   # for grafana the namespace is not the same as the ingress hostname
   if [ "${namespace}" = "monitoring" ]; then
@@ -73,7 +73,8 @@ fi
 if [ "${TARGET_TYPE}" == "METALSTACK" ] ; then
  argocd_apps="sx-argocd sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack"
 else
- argocd_apps="sx-argocd sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack sx-external-secrets sx-loki sx-keycloak sx-promtail sx-tempo"
+ argocd_apps=$(curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/target-chart/values-phac.yaml |awk '/^  - name:/ { printf "%s", $3" "}' 
+# argocd_apps="sx-argocd sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack sx-external-secrets sx-loki sx-keycloak sx-promtail sx-tempo"
 fi
 
 # max wait for 20 minutes
