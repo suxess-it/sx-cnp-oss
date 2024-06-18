@@ -1,0 +1,75 @@
+default:
+  valueFiles:
+  - values-k3d.yaml
+
+applications:
+
+  - name: cert-manager
+    annotations:
+      argocd.argoproj.io/sync-wave: "-3"
+    valueFiles:
+      - values.yaml
+
+  - name: argocd
+    annotations:
+      argocd.argoproj.io/sync-wave: "-2"
+
+#  - name: kube-prometheus-stack
+#    destinationNamespaceOverwrite: monitoring
+#    annotations:
+#      argocd.argoproj.io/compare-options: ServerSideDiff=true
+#      argocd.argoproj.io/sync-wave: "-1"
+#    syncOptions:
+#      - ServerSideApply=true
+
+#  - name: loki
+#    destinationNamespaceOverwrite: monitoring
+#    annotations:
+#      argocd.argoproj.io/compare-options: ServerSideDiff=true
+#    helmOptions:
+#      skipCrds: true
+#    syncOptions:
+#      - ServerSideApply=true
+
+#  - name: promtail
+#    destinationNamespaceOverwrite: monitoring
+    
+#  - name: tempo
+#    destinationNamespaceOverwrite: monitoring
+
+#  - name: falco
+#    annotations:
+#      argocd.argoproj.io/compare-options: ServerSideDiff=true
+#    helmOptions:
+#      skipCrds: true
+#    syncOptions:
+#      - ServerSideApply=true
+
+  - name: external-secrets
+
+  - name: keycloak
+
+#  - name: kargo
+
+#  - name: kubecost
+
+  - name: team-onboarding
+    destinationNamespaceOverwrite: argocd
+
+#  - name: argo-rollouts
+#    valueFiles:
+#      - values.yaml
+
+  - name: crossplane
+    valueFiles:
+      - values.yaml
+
+#  - name: kyverno
+#    valueFiles:
+#      - values.yaml
+#    syncOptions:
+#      - ServerSideApply=true
+#      
+  - name: backstage
+    annotations:
+      argocd.argoproj.io/sync-wave: "10"

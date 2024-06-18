@@ -13,7 +13,7 @@ spec:
     path: platform-apps/target-chart
     helm:
       valueFiles:
-        - values-k3d.yaml
+        - values-phac.yaml
       parameters:
         - name: default.repoURL
           value: $ARGOCD_APP_SOURCE_REPO_URL
