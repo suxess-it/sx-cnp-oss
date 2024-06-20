@@ -54,6 +54,8 @@ applications:
 #  - name: kubecost
 
   - name: komoplane
+  
+  - name: vault
 
   - name: team-onboarding
     destinationNamespaceOverwrite: argocd

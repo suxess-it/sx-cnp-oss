@@ -69,6 +69,7 @@ The platform stack will be installed automagically ;)
 * keycloak
 * external-secret-operator
 * falco
+* vault
 
 ### 3. log in to the tools
 
@@ -80,6 +81,7 @@ The platform stack will be installed automagically ;)
 | Grafana    | https://grafana-127-0-0-1.nip.io | admin | prom-operator |
 | Keycloak    | https://keycloak-127-0-0-1.nip.io | admin | admin |
 | FalcoUI    | https://falco-127-0-0-1.nip.io | admin | admin |
+| Vault    | https://vault-127-0-0-1.nip.io | via Token | `kubectl get secret -n vault vault-init  -o=jsonpath='{.data.root_token}' \| base64 -d` |
 
 ### 4. kubecost
 
