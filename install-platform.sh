@@ -73,7 +73,7 @@ fi
 if [ "${TARGET_TYPE}" == "METALSTACK" ] ; then
  argocd_apps="sx-argocd sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack"
 else
- argocd_apps=$(curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/target-chart/values-phac.yaml |awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
+ argocd_apps=$(curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/target-chart/values-phac.yaml |awk '/^  - name:/ { printf "%s", "sx-"$3" "}' |grep -v backstage  )
 # argocd_apps="sx-argocd sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack sx-external-secrets sx-loki sx-keycloak sx-promtail sx-tempo"
 fi
 
