@@ -29,6 +29,7 @@ metadata:
   name: keycloak-builtin-objects-{{ .Values.deployments.keycloak.realm.realmid }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   providerConfigName: sx-keycloak-config
   providerSecretName: keycloak-credentials-cp

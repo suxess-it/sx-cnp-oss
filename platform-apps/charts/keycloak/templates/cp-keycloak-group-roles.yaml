@@ -4,6 +4,7 @@ metadata:
   name: {{ .Values.deployments.keycloak.client.config.clientID }}-default-group-roles
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   deletionPolicy: Delete
   forProvider:

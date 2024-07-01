@@ -1,0 +1,77 @@
+cost-analyzer:  
+  global:
+    # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
+    prometheus:
+      enabled: true  # If false, Prometheus will not be installed -- Warning: Before changing this setting, please read to understand this setting https://docs.kubecost.com/install-and-configure/install/custom-prom
+      fqdn: http://sx-kube-prometheus-stack-prometheus.monitoring:9090/  # example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: 
+
+    grafana:
+      enabled: false  # If false, Grafana will not be installed
+      domainName: sx-kube-prometheus-stack-grafana.monitoring  # example grafana domain Ignored if enabled: true
+      scheme: "http"  # http or https, for the domain name above.
+      proxy: false  # If true, the kubecost frontend will route to your grafana through its service endpoint
+      # fqdn: cost-analyzer-grafana.default.svc
+
+    notifications:
+      alertmanager:  # Supply an alertmanager FQDN to receive notifications from the app.
+        enabled: true  # If true, allow kubecost to write to your alertmanager
+        fqdn: http://sx-kube-prometheus-stack-alertmanager.monitoring:9093/  # example fqdn. Ignored if prometheus.enabled: true
+
+    # Platforms is a higher-level abstraction for platform-specific values and settings.
+    platforms:
+      # Set options for deploying with CI/CD tools like Argo CD.
+      cicd:
+        enabled: true  # Set to true when using affected CI/CD tools for access to the below configuration options.
+
+  # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/main/ingress-examples.md
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert.gardener.cloud/purpose: managed
+      dns.gardener.cloud/class: garden
+      dns.gardener.cloud/dnsnames: kubecost.lab.suxessit.k8s.cloud.uibk.ac.at
+      dns.gardener.cloud/ttl: "180"
+    hosts:
+      - kubecost.lab.suxessit.k8s.cloud.uibk.ac.at
+    tls: 
+      - secretName: kubecost-server-tls
+        hosts:
+          - kubecost.lab.suxessit.k8s.cloud.uibk.ac.at
+
+  # Define persistence volume for cost-analyzer, more information at https://docs.kubecost.com/install-and-configure/install/storage
+  persistentVolume:
+    size: 5Gi
+    dbSize: 5Gi
+    enabled: true  # Note that setting this to false means configurations will be wiped out on pod restart.
+
+  grafana:
+    namespace_datasources: monitoring # override the default namespace here
+    namespace_dashboards: monitoring # override the default namespace here
+ 
+  prometheus:
+    server:
+      global:
+        external_labels:
+          cluster_id: sx-cnp-oss  
+
+  kubecostProductConfigs:
+    customPricesEnabled: true
+    defaultModelPricing:
+      enabled: true
+      CPU: "28.0"
+      spotCPU: "4.86"
+      RAM: "3.09"
+      spotRAM: "0.65"
+      GPU: "693.50"
+      spotGPU: "225.0"
+      storage: "0.04"
+      zoneNetworkEgress: "0.01"
+      regionNetworkEgress: "0.01"
+      internetNetworkEgress: "0.12"
+  #   # The cluster profile represents a predefined set of parameters to use when calculating savings.
+  #   # Possible values are: [ development, production, high-availability ]
+    clusterProfile: development
+    clusterName: "sx-cnp-oss Demo" # clusterName is the default context name in settings.
+  #   clusterAccountID: "" # Manually set Account property for assets
+    currencyCode: "EUR" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, IDR, INR, JPY, NOK, PLN, SEK

@@ -4,6 +4,7 @@ kind: Function
 metadata:
   name: function-extra-resources
   annotations:
+    argocd.argoproj.io/sync-wave: "-2"
     # This tells crossplane beta render to connect to the function locally.
     #render.crossplane.io/runtime: Development
 spec:
@@ -15,6 +16,7 @@ kind: Function
 metadata:
   name: function-auto-ready
   annotations:
+    argocd.argoproj.io/sync-wave: "-2"
     # This tells crossplane beta render to connect to the function locally.
     #render.crossplane.io/runtime: Development
 spec:
@@ -25,7 +27,8 @@ apiVersion: pkg.crossplane.io/v1beta1
 kind: Function
 metadata:
   name: function-keycloak-builtin-objects
-  #annotations:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
   #  # This tells crossplane beta render to connect to the function locally.
   #  render.crossplane.io/runtime: Development
 spec:

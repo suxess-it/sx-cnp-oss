@@ -1,6 +1,9 @@
 cert:
   enabled: false
 
+gardenercert:
+  enabled: false
+
 backstage:
   ingress:
     enabled: true

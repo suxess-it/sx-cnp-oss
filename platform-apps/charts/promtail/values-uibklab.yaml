@@ -1,0 +1,49 @@
+promtail:
+  # -- Section for crafting Promtails config file. The only directly relevant value is `config.file`
+  # which is a templated string that references the other values and snippets below this key.
+  # @default -- See `values.yaml`
+  config:
+    # -- Enable Promtail config from Helm chart
+    # Set `configmap.enabled: true` and this to `false` to manage your own Promtail config
+    # See default config in `values.yaml`
+    enabled: true
+    # -- The log level of the Promtail server
+    # Must be reference in `config.file` to configure `server.log_level`
+    # See default config in `values.yaml`
+    logLevel: info
+    # -- The log format of the Promtail server
+    # Must be reference in `config.file` to configure `server.log_format`
+    # Valid formats: `logfmt, json`
+    # See default config in `values.yaml`
+    logFormat: logfmt
+    # -- The port of the Promtail server
+    # Must be reference in `config.file` to configure `server.http_listen_port`
+    # See default config in `values.yaml`
+    serverPort: 3101
+    # -- The config of clients of the Promtail server
+    # Must be reference in `config.file` to configure `clients`
+    # @default -- See `values.yaml`
+    clients:
+      - url: http://sx-loki-gateway/loki/api/v1/push
+    
+    scrape_configs:
+    - job_name: system
+      static_configs:
+        - targets:
+            - localhost
+          labels:
+            job: varlogs
+            __path__: /var/log/*log
+
+    - job_name: kubernetes
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          target_label: node
+        - source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          target_label: pod
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          target_label: container

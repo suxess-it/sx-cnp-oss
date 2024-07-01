@@ -63,18 +63,21 @@ for ns in adn-team1 adn-team2; do
 done
 
 CURRENT_BRANCH_SED=$( echo ${CURRENT_BRANCH} | sed 's/\//\\\//g' )
-if [ "${TARGET_TYPE}" == "METALSTACK" ] ; then
-  curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/bootstrap-app-metalstack.yaml | sed "s/targetRevision: main/targetRevision: ${CURRENT_BRANCH_SED}/g" | kubectl apply -n argocd -f -
-else
-  curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/bootstrap-app-k3d.yaml | sed "s/targetRevision: main/targetRevision: ${CURRENT_BRANCH_SED}/g" | kubectl apply -n argocd -f -
-fi
 
-# wait for all apps to be synced and health
-if [ "${TARGET_TYPE}" == "METALSTACK" ] ; then
- argocd_apps="sx-argocd sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack"
-else
- argocd_apps="sx-argocd sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack sx-external-secrets sx-loki sx-keycloak sx-promtail sx-tempo"
-fi
+# bootstrap-app
+curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/bootstrap-app-$(echo ${TARGET_TYPE} | awk '{print tolower($0)}').yaml | sed "s/targetRevision: main/targetRevision: ${CURRENT_BRANCH_SED}/g" | kubectl apply -n argocd -f -
+
+# create app list
+case "${TARGET_TYPE}" in
+KIND)
+  URL=https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/target-chart/values-k3d.yaml
+  argocd_apps=$(curl -L $URL | grep -v backstage | awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
+;;
+*)
+  URL=https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/target-chart/values-$(echo ${TARGET_TYPE} | awk '{print tolower($0)}').yaml
+  argocd_apps=$(curl -L $URL | grep -v backstage | awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
+;;
+esac
 
 # max wait for 20 minutes
 end=$((SECONDS+1800))
@@ -111,13 +114,10 @@ fi
 # apply argocd-secret to set a secretKey
 kubectl apply -f https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/charts/argocd/manual-secret/argocd-secret.yaml
 
-if [ "${TARGET_TYPE}" == "METALSTACK" ] ; then
-  ARGOCD_HOSTNAME=argocd-metalstack.platform-engineer.cloud
-  GRAFANA_HOSTNAME=grafana-metalstack.platform-engineer.cloud
-else
-  GRAFANA_HOSTNAME=grafana-127-0-0-1.nip.io
-  ARGOCD_HOSTNAME=argocd-127-0-0-1.nip.io
-fi
+# get hostnames
+# gethostnames from ingress - to remove TARGET_TYPE 
+export ARGOCD_HOSTNAME=$(kubectl get ingress -o jsonpath='{.items[*].spec.rules[*].host}' -n argocd)
+export GRAFANA_HOSTNAME=$(kubectl get ingress -o jsonpath='{.items[*].spec.rules[*].host}' -n monitoring)
 
 # download argocd
 curl -kL -o argocd https://${ARGOCD_HOSTNAME}/download/argocd-linux-amd64
@@ -127,8 +127,8 @@ INITIAL_ARGOCD_PASSWORD=$( kubectl get secret -n argocd argocd-initial-admin-sec
 ./argocd login ${ARGOCD_HOSTNAME} --grpc-web --insecure --username admin --password ${INITIAL_ARGOCD_PASSWORD}
 export ARGOCD_AUTH_TOKEN="argocd.token=$( ./argocd account generate-token --account backstage --grpc-web )"
 
-ID=$( curl -k -X POST https://grafana-127-0-0-1.nip.io/api/serviceaccounts --user 'admin:prom-operator' -H "Content-Type: application/json" -d '{"name": "backstage","role": "Viewer","isDisabled": false}' | jq -r .id )
-export GRAFANA_TOKEN=$(curl -k -X POST https://grafana-127-0-0-1.nip.io/api/serviceaccounts/${ID}/tokens --user 'admin:prom-operator' -H "Content-Type: application/json" -d '{"name": "backstage"}' | jq -r .key)
+ID=$( curl -k -X POST https://${GRAFANA_HOSTNAME}/api/serviceaccounts --user 'admin:prom-operator' -H "Content-Type: application/json" -d '{"name": "backstage","role": "Viewer","isDisabled": false}' | jq -r .id )
+export GRAFANA_TOKEN=$(curl -k -X POST https://${GRAFANA_HOSTNAME}/api/serviceaccounts/${ID}/tokens --user 'admin:prom-operator' -H "Content-Type: application/json" -d '{"name": "backstage"}' | jq -r .key)
 
 
 # check if backstage is already synced (it will still be degraded because of the missing secret we create in the next step)
@@ -168,11 +168,7 @@ kubectl rollout restart deploy/sx-backstage -n backstage
 
 
 # finally wait for all apps backstage included to be synced and health
-if [ "${TARGET_TYPE}" == "METALSTACK" ] ; then
- argocd_apps="sx-argocd sx-backstage sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack"
-else
- argocd_apps="sx-argocd sx-backstage sx-kubecost sx-crossplane sx-kargo sx-cert-manager sx-argo-rollouts sx-kyverno sx-kube-prometheus-stack sx-external-secrets sx-loki sx-keycloak sx-promtail sx-tempo"
-fi
+argocd_apps=$(curl -L $URL | awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
 
 # max wait for 20 minutes
 end=$((SECONDS+300))

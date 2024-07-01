@@ -17,6 +17,7 @@ metadata:
   name: {{ $user.name }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   forProvider:
     realmId: {{ $.Values.deployments.keycloak.realm.realmid }}

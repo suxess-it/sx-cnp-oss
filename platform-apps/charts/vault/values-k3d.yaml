@@ -1,0 +1,244 @@
+  # Copyright (c) HashiCorp, Inc.
+  # SPDX-License-Identifier: MPL-2.0
+vault:
+  injector:
+    enabled: false
+  server:
+    ingress:
+      enabled: true
+      hosts:
+        - host: vault-127-0-0-1.nip.io
+          paths: []
+      tls: 
+        - secretName: vault-server-tls
+          hosts:
+            - vault-127-0-0-1.nip.io
+    extraInitContainers:
+      - name: utility-downloader
+        image: alpine/curl:latest
+        command: 
+        - /bin/sh
+        - -c
+        - | 
+            cd /usr/local/libexec/vault
+            export PLUGIN_VERSION=v2.1.0
+            curl -L -o vault-plugin-secrets-github-linux-amd64 https://github.com/martinbaillie/vault-plugin-secrets-github/releases/download/${PLUGIN_VERSION}/vault-plugin-secrets-github-linux-amd64 
+            chmod +x vault-plugin-secrets-github-linux-amd64
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            curl -L -o jq https://github.com/stedolan/jq/releases/download/jq-1.7.1/jq-linux64
+            chmod +x jq
+        volumeMounts:
+          - name: plugins
+            mountPath: /usr/local/libexec/vault
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          runAsNonRoot: true
+    extraContainers:
+      - name: auto-initializer
+        image: hashicorp/vault:1.16.1
+        env: 
+          - name: VAULT_ADDR
+            valueFrom:
+              secretKeyRef:
+                name: sx-vault-env-vars
+                key: VAULT_ADDR  
+        command: 
+        - /bin/sh
+        - -c
+        - | 
+            set -x
+            while true; do
+              while [ -z $UNSEAL_KEY ]; do
+                sleep 5
+                VAULT_STATUS=$(vault status)
+                if echo "$VAULT_STATUS" | grep -q "Initialized.*false"; then
+                  export INIT_RESPONSE=$(vault operator init -format=json -key-shares=1 -key-threshold=1)
+                  echo "$INIT_RESPONSE"
+                  export UNSEAL_KEY=$(echo "$INIT_RESPONSE" | /usr/local/libexec/vault/jq -r .unseal_keys_b64[0])
+                  export ROOT_TOKEN=$(echo "$INIT_RESPONSE" | /usr/local/libexec/vault/jq -r .root_token)
+                  echo "$UNSEAL_KEY"
+                  echo "$ROOT_TOKEN"
+                  /usr/local/libexec/vault/kubectl delete secret vault-init -n vault
+                  /usr/local/libexec/vault/kubectl create secret generic vault-init -n vault --from-literal=unseal_key=${UNSEAL_KEY} --from-literal=root_token=${ROOT_TOKEN} 
+                else
+                  echo "Vault Initialized"
+                  sleep 5
+                fi 
+              done   
+            done
+        volumeMounts:
+          - name: plugins
+            mountPath: /usr/local/libexec/vault
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          runAsNonRoot: true
+
+      - name: auto-unsealer
+        image: hashicorp/vault:1.16.1
+        env: 
+          - name: VAULT_ADDR
+            valueFrom:
+              secretKeyRef:
+                name: sx-vault-env-vars
+                key: VAULT_ADDR  
+        command: 
+        - /bin/sh
+        - -c
+        - | 
+            set -x
+            while true; do
+              sleep 5
+              VAULT_STATUS=$(vault status)
+              if echo "$VAULT_STATUS" | grep -q "Initialized.*true"; then
+                if echo "$VAULT_STATUS" | grep -q "Sealed.*true"; then
+                  if [ -f /vault-root-token/unseal_key ]; then
+                    #vault operator unseal -reset $(cat /vault-root-token/unseal_key)
+                    vault operator unseal $(cat /vault-root-token/unseal_key)
+                    sleep 5
+                    if [ $HOSTNAME != 'sx-vault-0' ]; then
+                      echo joining raft cluster
+                      vault operator raft join http://sx-vault-0.vault-internal:8200
+                    fi
+                  else
+                    echo unseal key not initialized yet  
+                  fi
+                else  
+                  echo vault already unsealed
+                fi
+              else  
+                echo Vault not initialized yet
+              fi     
+            done
+        volumeMounts:
+          - name: vault-root-token
+            mountPath: /vault-root-token  
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          runAsNonRoot: true
+      - name: vault-initializer
+        image: hashicorp/vault:1.16.1
+        env: 
+          - name: VAULT_ADDR
+            valueFrom:
+              secretKeyRef:
+                name: sx-vault-env-vars
+                key: VAULT_ADDR    
+        command: 
+        - /bin/sh
+        - -c
+        - | 
+          while true; do
+            sleep 5
+            if [ -f /vault-root-token/root_token ]; then
+              export VAULT_TOKEN=$(cat /vault-root-token/root_token)
+              VAULT_STATUS=$(vault status)
+              if echo "$VAULT_STATUS" | grep -q "Sealed.*false"; then
+                if [ ! $(vault policy list | grep vault) ]; then
+                  vault auth enable kubernetes
+                  vault write auth/kubernetes/config kubernetes_host=https://kubernetes.default.svc:443 
+                  vault write auth/kubernetes/role/policy-admin bound_service_account_names=default bound_service_account_namespaces=vault policies=sx-cnp-oss-vault ttl=1h
+                  cat << EOF | vault policy write vault-admin -
+                    path "/*" {
+                      capabilities = ["create", "read", "update", "delete", "list","sudo"]
+                    }
+          EOF
+                  vault secrets enable --path=sx-cnp-oss-kv kv-v2
+                  vault kv put sx-cnp-oss-kv/demo/deploydev 'username=something' 'password=NjPC14rDJvc'
+                  cat << EOF | vault kv put sx-cnp-oss-kv/demo/asdf -
+                  {
+                    "VAULT_ADDR": "vault-127-0-0-1.nip.io",
+                    "VAULT_TOKEN": "securedemo"
+                  }
+          EOF
+                else 
+                  echo vault admin already configured, just updating kubernetes config
+                  vault write auth/kubernetes/config token_reviewer_jwt=@/var/run/secrets/kubernetes.io/serviceaccount/token kubernetes_host=https://kubernetes.default.svc:443 kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt 
+                  echo creating accessor configmap
+                  accessor=$(vault auth list -detailed | grep kubernetes | awk '{print $3}')
+                  if /usr/local/libexec/vault/kubectl get configmap kubeauth-accessor -n vault; then
+                    /usr/local/libexec/vault/kubectl patch configmap kubeauth-accessor -n vault -p '{"data":{"accessor": "'"${accessor}"'"}}'
+                  else  
+                    /usr/local/libexec/vault/kubectl create configmap kubeauth-accessor -n vault --from-literal=accessor=${accessor}
+                  fi  
+                  sleep 5
+                fi      
+              else
+                echo vault still sealed
+              fi    
+            else 
+              echo root token not initialized yet    
+            fi    
+          done  
+        volumeMounts:
+          - name: vault-root-token
+            mountPath: /vault-root-token
+          - name: plugins
+            mountPath: /usr/local/libexec/vault
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          runAsNonRoot: true
+    volumes:
+      - name: plugins
+        emptyDir: {}
+      - name: vault-root-token
+        secret:
+          secretName: vault-init
+          optional: true 
+
+    volumeMounts:
+      - mountPath: /usr/local/libexec/vault
+        name: plugins
+        readOnly: false 
+    dataStorage:
+      size: 1Gi
+    ha:
+      enabled: true
+      replicas: 1
+      raft:
+        enabled: true
+        setNodeId: true
+        config: |
+          ui = true
+
+          listener "tcp" {
+            tls_disable = 1
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+            # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+            #telemetry {
+            #  unauthenticated_metrics_access = "true"
+            #}
+          }
+
+          storage "raft" {
+            path = "/vault/data"
+          }
+          
+          # For integrated raft storage and security
+          # https://developer.hashicorp.com/vault/docs/configuration#disable_mlock
+          disable_mlock = true
+          
+          telemetry {
+            prometheus_retention_time = "30m"
+            disable_hostname = true
+          }
+          
+          service_registration "kubernetes" {}
+          plugin_directory = "/usr/local/libexec/vault"

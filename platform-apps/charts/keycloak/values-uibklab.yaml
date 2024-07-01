@@ -14,7 +14,8 @@ secrets:
       password: admin
 
 gardenercert:
-  enabled: false
+  enabled: true
+  # dnsnames set by .Values.deployments.ingress.host
 
 # Postgres, Keycloak and Ingress deployments
 deployments:
@@ -31,7 +32,7 @@ deployments:
       name: postgres-storage
       path: /var/lib/postgresql/data
   ingress:
-    host: keycloak-127-0-0-1.nip.io
+    host: keycloak.lab.suxessit.k8s.cloud.uibk.ac.at
   keycloak:
     version: 24.0.5
     service:

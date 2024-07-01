@@ -2,6 +2,8 @@ apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
   name: keycloak-builtin-objects
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   compositeTypeRef:
     apiVersion: keycloak.crossplane.io/v1alpha1

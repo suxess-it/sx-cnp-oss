@@ -27,6 +27,7 @@ spec:
       valueFiles:
         {{- toYaml $.Values.default.valueFiles | nindent 6}}      
       {{- end }}
+      ignoreMissingValueFiles: true
   destination:
     {{- if .destinationNamespaceOverwrite }}
     namespace: {{ .destinationNamespaceOverwrite }}

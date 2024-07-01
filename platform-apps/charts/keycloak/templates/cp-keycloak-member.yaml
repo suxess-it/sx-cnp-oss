@@ -4,6 +4,7 @@ metadata:
   name: {{ .Values.deployments.keycloak.client.config.clientID }}-admin-memberships
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   forProvider:
     groupIdRef:
@@ -22,6 +23,7 @@ metadata:
   name: {{ $.Values.deployments.keycloak.client.config.clientID }}-{{ $group.name }}-users-memberships
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   forProvider:
     groupIdRef:

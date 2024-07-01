@@ -1,0 +1,113 @@
+cert:
+  enabled: false
+
+kube-prometheus-stack:
+  defaultRules:
+    ## Additional labels for PrometheusRule alerts
+    additionalRuleLabels:
+      cluster: sx-loki
+  ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+  ##
+  grafana:
+    # set cookies for backstage plugin integration
+    grafana.ini:
+      security:
+        allow_embedding: 'true'
+        cookie_samesite: none
+        cookie_secure: 'true'
+    ingress:
+      ## If true, Grafana Ingress will be created
+      ##
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert.gardener.cloud/purpose: managed
+        dns.gardener.cloud/class: garden
+        dns.gardener.cloud/dnsnames: grafana.lab.suxessit.k8s.cloud.uibk.ac.at
+        dns.gardener.cloud/ttl: "180"
+      hosts: [grafana.lab.suxessit.k8s.cloud.uibk.ac.at]
+      tls:
+        - secretName: monitoring-server-tls
+          hosts:
+          - grafana.lab.suxessit.k8s.cloud.uibk.ac.at
+    # # To make Grafana persistent (Using Statefulset)
+    # #
+    persistence:
+      enabled: true
+      type: sts
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
+      finalizers:
+        - kubernetes.io/pvc-protection
+
+
+  kubelet:
+    serviceMonitor:
+      ## RelabelConfigs to apply to samples before scraping
+      ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+      ##
+      ## metrics_path is required to match upstream rules and charts
+      cAdvisorRelabelings:
+        - action: replace
+          sourceLabels: [__metrics_path__]
+          targetLabel: metrics_path
+        - action: replace
+          replacement: sx-loki
+          targetLabel: cluster
+        - action: replace
+          targetLabel: "instance"
+          sourceLabels:
+            - "node"
+  ## Configuration for kube-state-metrics subchart
+  ##
+  kube-state-metrics:
+    prometheus:
+      monitor:
+        ## RelabelConfigs to apply to samples before scraping
+        ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+        ##
+        relabelings:
+          - action: replace
+            replacement: sx-loki
+            targetLabel: cluster
+          - action: replace
+            targetLabel: "instance"
+            sourceLabels:
+              - "__meta_kubernetes_pod_node_name"
+  
+  ## Configuration for prometheus-node-exporter subchart
+  ##
+  prometheus-node-exporter:
+    prometheus:
+      monitor:
+        ## RelabelConfigs to apply to samples before scraping
+        ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+        ##
+        relabelings:
+          - action: replace
+            replacement: sx-loki
+            targetLabel: cluster
+          - action: replace
+            targetLabel: "instance"
+            sourceLabels:
+              - "__meta_kubernetes_pod_node_name"
+
+  ## Deploy a Prometheus instance
+  ##
+  prometheus:
+    serviceMonitor:
+      relabelings:
+        - action: replace
+          replacement: sx-loki
+          targetLabel: cluster
+          
+    ## Settings affecting prometheusSpec
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#prometheusspec
+    ##
+    prometheusSpec:
+      ## If true, a nil or {} value for prometheus.prometheusSpec.serviceMonitorSelector will cause the
+      ## prometheus resource to be created with selectors based on values in the helm deployment,
+      ## which will also match the servicemonitors created
+      ##        
+      serviceMonitorSelectorNilUsesHelmValues: false

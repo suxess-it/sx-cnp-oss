@@ -3,6 +3,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: "{{ .Values.deployment.service.name }}"
+{{- if .Values.gardenercert.enabled }}
+  annotations:
+    cert.gardener.cloud/purpose: managed
+    dns.gardener.cloud/class: garden
+    dns.gardener.cloud/dnsnames: {{ .Values.gardenercert.dnsnames }}
+    dns.gardener.cloud/ttl: "180"
+{{- end }}
 spec:
   ingressClassName: nginx
   tls:

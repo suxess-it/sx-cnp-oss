@@ -1,0 +1,83 @@
+default:
+  valueFiles:
+  - values-uibklab.yaml
+
+applications:
+
+  - name: cert-manager
+    annotations:
+      argocd.argoproj.io/sync-wave: "-3"
+
+  - name: ingress-nginx
+    annotations:
+      argocd.argoproj.io/sync-wave: "-2"
+
+  - name: external-dns
+    annotations:
+      argocd.argoproj.io/sync-wave: "-2" 
+
+  - name: argocd
+    annotations:
+      argocd.argoproj.io/sync-wave: "-2"
+
+  - name: kube-prometheus-stack
+    destinationNamespaceOverwrite: monitoring
+    annotations:
+      argocd.argoproj.io/compare-options: ServerSideDiff=true
+      argocd.argoproj.io/sync-wave: "-1"
+    syncOptions:
+      - ServerSideApply=true
+
+  - name: crossplane
+    annotations:
+      argocd.argoproj.io/sync-wave: "-1"
+      
+  - name: kargo
+
+  - name: kubecost
+
+  - name: team-onboarding
+    destinationNamespaceOverwrite: argocd
+
+  - name: argo-rollouts
+
+  - name: keycloak
+
+  - name: loki
+    destinationNamespaceOverwrite: monitoring
+    annotations:
+      argocd.argoproj.io/compare-options: ServerSideDiff=true
+    helmOptions:
+      skipCrds: true
+    syncOptions:
+      - ServerSideApply=true
+
+  - name: promtail
+    destinationNamespaceOverwrite: monitoring
+
+  - name: tempo
+    destinationNamespaceOverwrite: monitoring
+
+  - name: falco
+    annotations:
+      argocd.argoproj.io/compare-options: ServerSideDiff=true
+    helmOptions:
+      skipCrds: true
+    syncOptions:
+      - ServerSideApply=true
+      
+  - name: komoplane
+
+  - name: kyverno
+    syncOptions:
+      - ServerSideApply=true
+      
+  - name: kubevirt-manager
+
+  - name: kubevirt
+
+  - name: vault
+
+  - name: backstage
+    annotations:
+      argocd.argoproj.io/sync-wave: "10"

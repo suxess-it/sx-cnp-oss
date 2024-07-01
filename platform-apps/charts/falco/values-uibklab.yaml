@@ -1,6 +1,3 @@
-gardenercert:
-  enabled: false
-
 falco:
   scc:
     create: false
@@ -31,15 +28,21 @@ falco:
       replicaCount: 1
       ingress:
         enabled: true
+        annotations:
+          cert.gardener.cloud/purpose: managed
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: falco.lab.suxessit.k8s.cloud.uibk.ac.at
+          dns.gardener.cloud/ttl: "180"          
+        ingressClassName: nginx
         hosts:
-          - host: falco-127-0-0-1.nip.io
+          - host: falco.lab.suxessit.k8s.cloud.uibk.ac.at
             paths:
               - path: /
                 pathType: Prefix
-        tls: 
-          - secretName: falco-server-tls
-            hosts:
-              - falco-127-0-0-1.nip.io
+        tls:
+            - secretName: falco-server-tls
+              hosts:
+                - falco.lab.suxessit.k8s.cloud.uibk.ac.at
     replicaCount: 1
     serviceMonitor:
       enabled: true

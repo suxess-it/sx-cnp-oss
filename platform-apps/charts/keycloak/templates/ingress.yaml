@@ -3,13 +3,17 @@ kind: Ingress
 metadata:
   name: "{{ .Values.deployments.keycloak.service.name }}"
   annotations:
-    # for operator
-    #nginx.ingress.kubernetes.io/backend-protocol: HTTPS 
-    # for dev
+{{- if .Values.gardenercert.enabled }}
+    cert.gardener.cloud/purpose: managed
+    dns.gardener.cloud/class: garden
+    dns.gardener.cloud/dnsnames: {{ .Values.deployments.ingress.host }}
+    dns.gardener.cloud/ttl: "180"
+{{- end }}
     nginx.ingress.kubernetes.io/backend-protocol: HTTP
 #    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 #    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - "{{ .Values.deployments.ingress.host }}"

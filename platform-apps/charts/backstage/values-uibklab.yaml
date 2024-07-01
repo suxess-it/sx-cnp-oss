@@ -1,22 +1,19 @@
 cert:
-  enabled: true
-  issuerRef: letsencrypt-staging
-  dnsName: portal-metalstack.platform-engineer.cloud
-
-gardenercert:
   enabled: false
 
 backstage:
   ingress:
     enabled: true
+    host: backstage.lab.suxessit.k8s.cloud.uibk.ac.at
     className: nginx
-    host: portal-metalstack.platform-engineer.cloud
     annotations:
-      external-dns.alpha.kubernetes.io/ttl: "60"
+      cert.gardener.cloud/purpose: managed
+      dns.gardener.cloud/class: garden
+      dns.gardener.cloud/dnsnames: backstage.lab.suxessit.k8s.cloud.uibk.ac.at
+      dns.gardener.cloud/ttl: "180"      
     tls:
       enabled: true
-      secretName: backstage-tls
-
+      secretName: backstage-server-tls
   backstage:
     image:
       registry: ghcr.io/suxess-it
@@ -28,10 +25,15 @@ backstage:
     extraEnvVars:
       - name: NODE_OPTIONS
         value: "--no-node-snapshot"
+#      - name: NODE_TLS_REJECT_UNAUTHORIZED
+#        value: "0"
+#      - name: LOG_LEVEL
+#        value: "debug"
+
     appConfig:
       app:
         title: sX CNP App
-        baseUrl: https://portal-metalstack.platform-engineer.cloud
+        baseUrl: https://backstage.lab.suxessit.k8s.cloud.uibk.ac.at
 
       organization:
         name: sX CNP
@@ -43,18 +45,18 @@ backstage:
         auth:
           keys:
             - secret: ${BACKEND_SECRET}
-        baseUrl: https://portal-metalstack.platform-engineer.cloud
+        baseUrl: https://backstage.lab.suxessit.k8s.cloud.uibk.ac.at
         listen:
           port: 7007
           # Uncomment the following host directive to bind to specific interfaces
           # host: 127.0.0.1
         csp:
           connect-src: ["'self'", 'http:', 'https:']
-          frame-src: ['*.platform-engineer.cloud']
+          frame-src: ['*.nip.io']
           # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
           # Default Helmet Content-Security-Policy values can be removed by setting the key to false
         cors:
-          origin: https://portal-metalstack.platform-engineer.cloud
+          origin: https://backstage.lab.suxessit.k8s.cloud.uibk.ac.at
           methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
           credentials: true
         # This is for local development only, it is not recommended to use this in production
@@ -69,9 +71,8 @@ backstage:
       integrations:
         github:
           - host: github.com
-            # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
-            # about setting up the GitHub integration here: https://backstage.io/docs/getting-started/configuration#setting-up-a-github-integration
             token: ${GITHUB_TOKEN}
+
           ### Example for how to add your GitHub Enterprise instance using the API:
           # - host: ghe.example.net
           #   apiBaseUrl: https://ghe.example.net/api/v3
@@ -84,7 +85,8 @@ backstage:
         #   target: 'https://example.com'
         #   changeOrigin: true
         "/argocd/api":
-          target: https://argocd-metalstack.platform-engineer.cloud/api/v1/
+          # use k8s internal service name because argocd-127-0-0-1.nip.io resolves to 127.0.0.1 in container, too
+          target: http://argocd-server.argocd:80/api/v1/
           changeOrigin: true
           secure: false
           headers:
@@ -92,21 +94,20 @@ backstage:
               $env: ARGOCD_AUTH_TOKEN
 
         '/grafana/api':
-          # May be a public or an internal DNS
-          target: https://grafana-metalstack.platform-engineer.cloud
-          secure: false
+          # use k8s internal service name because grafana-127-0-0-1.nip.io resolves to 127.0.0.1 in container, too
+          target: http://sx-kube-prometheus-stack-grafana.monitoring:80
           headers:
             Authorization: Bearer ${GRAFANA_TOKEN}
 
       argocd:
-        baseUrl: https://argocd-metalstack.platform-engineer.cloud
+        baseUrl: https://argocd.lab.suxessit.k8s.cloud.uibk.ac.at
         username: admin
         password: admin
         appLocatorMethods:
           - type: 'config'
             instances:
               - name: main
-                url: https://argocd-metalstack.platform-engineer.cloud
+                url: https://argocd.lab.suxessit.k8s.cloud.uibk.ac.at
 
       # Reference documentation http://backstage.io/docs/features/techdocs/configuration
       # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -120,6 +121,8 @@ backstage:
           type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
 
       auth:
+        session:
+          secret: supersecret # free sessionsecret
         environment: development
         providers:
           github:
@@ -129,7 +132,28 @@ backstage:
               signIn:
                 resolvers:
                   - resolver: usernameMatchingUserEntityName
-          guest: {}
+                #  - resolver: emailMatchingUserEntityProfileEmail
+                #  - resolver: emailLocalPartMatchingUserEntityName
+              schedule:
+                frequency: PT30M
+                timeout: PT3M
+          #guest: {}
+          oidc:
+            development:
+              # real metadataUrl -> local cluster lead to "ECONNREFUSED 127.0.0.1:443" - #24935
+              #metadataUrl: https://keycloak-127-0-0-1.nip.io/realms/sx-cnp-oss #.well-known/openid-configuration can be ommited
+              # workaround -> also set frontendUrl in keycloak realm
+              metadataUrl: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/sx-cnp-oss #.well-known/openid-configuration can be ommited
+              callbackUrl: https://backstage.lab.suxessit.k8s.cloud.uibk.ac.at/api/auth/oidc/handler/frame
+              clientId: backstage
+              clientSecret: demosecret
+              scope: 'openid profile email groups'
+              #scope: 'openid profile email'
+              prompt: auto
+              signIn:
+                resolvers:
+                  - resolver: emailLocalPartMatchingUserEntityName
+                  - resolver: emailMatchingUserEntityProfileEmail
 
       scaffolder: {}
         # see https://backstage.io/docs/features/software-templates/configuration for software template options
@@ -186,6 +210,7 @@ backstage:
             tags:
               - apps
               - notReallyavailable
+
       catalog:
         import:
           entityFilename: catalog-info.yaml
@@ -194,9 +219,7 @@ backstage:
           - allow: [Component, System, API, Resource, Location, Template, Domain, User, Group ]
         locations:
           - type: url
-            target: https://github.com/suxess-it/sx-cnp-oss-demo-app/blob/main/catalog-info-metalstack.yaml
-          - type: url
-            target: https://github.com/jkleinlercher/test9-repo/blob/master/catalog-info.yaml
+            target: https://github.com/suxess-it/sx-cnp-oss-demo-app/blob/main/catalog-info.yaml
           - type: url
             target: https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/templates/showcase-templates.yaml
             rules:
@@ -204,7 +227,24 @@ backstage:
           - type: url
             target: https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/entities/all.yaml
           - type: url
-            target: https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/entities/metalstack.yaml
+            target: https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/entities/k3d.yaml
+        providers:
+          keycloakOrg:
+            default:
+              # real baseUrl -> local cluster lead to "ECONNREFUSED 127.0.0.1:443"
+              #baseUrl: https://keycloak-127-0-0-1.nip.io
+              # workaround
+              baseUrl: http://keycloak-service.keycloak.svc.cluster.local:8080
+              loginRealm: sx-cnp-oss
+              realm: sx-cnp-oss
+              clientId: backstage
+              clientSecret: 'demosecret'
+              schedule: # Mandatory; same options as in TaskScheduleDefinition
+                # supports cron, ISO duration, "human duration" as used in code
+                frequency: { minutes: 30 } # Customize this to fit your needs
+                # supports ISO duration, "human duration" as used in code
+                timeout: { minutes: 3 } # Customize this to fit your needs
+                initialDelay: { seconds: 30 } # Customize this to fit your needs
 
       kubernetes:
         serviceLocatorMethod:
@@ -213,7 +253,7 @@ backstage:
           - type: config
             clusters:
               - url: https://kubernetes.default.svc
-                name: metalstack
+                name: k3d-local
                 authProvider: serviceAccount
                 skipTLSVerify: true
                 skipMetricsLookup: true
@@ -222,10 +262,9 @@ backstage:
       scorecards:
         jsonDataUrl: https://raw.githubusercontent.com/Oriflame/backstage-plugins/main/plugins/score-card/sample-data/
 
-      
       grafana:
         # Publicly accessible domain
-        domain: https://grafana-metalstack.platform-engineer.cloud
+        domain: https://grafana.lab.suxessit.k8s.cloud.uibk.ac.at
 
         # Is unified alerting enabled in Grafana?
         # See: https://grafana.com/blog/2021/06/14/the-new-unified-alerting-system-for-grafana-everything-you-need-to-know/
@@ -284,7 +323,7 @@ backstage:
             rate: 5.5
 
       kubecost:
-        baseUrl: https://kubecost-metalstack.platform-engineer.cloud/
+        baseUrl: https://kubecost.lab.suxessit.k8s.cloud.uibk.ac.at
         sharedNamespaces: kube-system
         queryframes: week,yesterday,month,today,lastweek
         annotationDeploymentName: 'backstage.io/kubernetes-id'

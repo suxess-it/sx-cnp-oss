@@ -20,10 +20,10 @@ data:
     cd /opt/keycloak/bin
 
     # login
-    ./kcadm.sh config credentials --realm master --user admin --password admin --server http://localhost:8080
+    ./kcadm.sh config credentials --realm master --user admin --password admin --server http://0.0.0.0:8080
     ./kcadm.sh create clients -r master -s serviceAccountsEnabled=true -s clientId=crossplane -s enabled=true -s secret=demosecret
     ./kcadm.sh add-roles --uusername service-account-crossplane --rolename admin -r master
     ./kcadm.sh update events/config -r master -s enabledEventTypes=[]
-    -/kcadm.sh update events/config -r master -s adminEventsEnabled=true -s adminEventsDetailsEnabled=true
+    ./kcadm.sh update events/config -r master -s adminEventsEnabled=true -s adminEventsDetailsEnabled=true
 
     exit 0

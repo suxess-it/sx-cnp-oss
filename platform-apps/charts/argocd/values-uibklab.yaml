@@ -1,0 +1,61 @@
+argo-cd:
+  global:
+    domain: argocd.lab.suxessit.k8s.cloud.uibk.ac.at
+
+  configs:
+    params:
+      server.insecure: true
+      application.namespaces: "adn-*"
+      applicationsetcontroller.namespaces: "adn-*"
+      applicationsetcontroller.allowed.scm.providers: https://github.com/
+    secret:
+      createSecret: false
+
+    cm:
+      application.resourceTrackingMethod: annotation
+      accounts.backstage: apiKey
+
+      resource.customizations: |
+        argoproj.io/Application:
+          health.lua: |
+            hs = {}
+            hs.status = "Progressing"
+            hs.message = ""
+            if obj.status ~= nil then
+              if obj.status.health ~= nil then
+                hs.status = obj.status.health.status
+                if obj.status.health.message ~= nil then
+                  hs.message = obj.status.health.message
+                end
+              end
+            end
+            return hs
+
+    rbac:
+      policy.csv: |
+        p, backstage, applications, get, */*, allow
+
+  server:
+    ingress:
+      enabled: true
+      annotations: 
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        cert.gardener.cloud/purpose: managed
+        dns.gardener.cloud/class: garden
+        dns.gardener.cloud/dnsnames: argocd.lab.suxessit.k8s.cloud.uibk.ac.at
+        dns.gardener.cloud/ttl: "180"
+      ingressClassName: nginx
+      extraTls:
+        - hosts:
+          - argocd.lab.suxessit.k8s.cloud.uibk.ac.at
+          # Based on the ingress controller used secret might be optional
+          secretName: argocd-server-tls
+    extensions:
+      enabled: true
+      contents:
+        - name: argo-rollouts
+          url: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.4/extension.tar
+
+  applicationSet:
+    allowAnyNamespace: true

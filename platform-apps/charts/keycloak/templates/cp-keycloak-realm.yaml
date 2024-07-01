@@ -8,6 +8,7 @@ metadata:
   annotations:
     link.argocd.argoproj.io/external-link: https://{{ .Values.deployments.ingress.host }}/admin/master/console/#/{{ .Values.deployments.keycloak.realm.realmid }}
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   forProvider:
     realm: {{ .Values.deployments.keycloak.realm.realmid }}

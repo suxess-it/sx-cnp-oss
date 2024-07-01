@@ -27,6 +27,13 @@ spec:
       labels:
         app: "{{ .Values.deployments.postgres.service.name }}"
     spec:
+      initContainers:
+      - name: init-clean
+        image: busybox
+        command: ['sh', '-c', 'rm -rf /var/lib/postgresql/data/*']
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
       containers:
         - image: "{{ .Values.deployments.postgres.image.name }}"
           name: "{{ .Values.deployments.postgres.service.name }}"
