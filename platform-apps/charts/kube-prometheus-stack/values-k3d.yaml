@@ -43,9 +43,24 @@ kube-prometheus-stack:
       - action: drop
         regex: apiserver_request_duration_seconds_bucket
         sourceLabels: [__name__]
-      - sourceLabels: [__name__]
-        action: drop
+      - action: drop
         regex: etcd_request_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: apiserver_request_slo_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: apiserver_response_sizes_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: workqueue_work_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: scheduler_plugin_execution_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: apiserver_watch_events_sizes_bucket
+        sourceLabels: [__name__]
 
   kubelet:
     serviceMonitor:
@@ -53,9 +68,24 @@ kube-prometheus-stack:
       - action: drop
         regex: apiserver_request_duration_seconds_bucket
         sourceLabels: [__name__]
-      - sourceLabels: [__name__]
-        action: drop
+      - action: drop
         regex: etcd_request_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: apiserver_request_slo_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: apiserver_response_sizes_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: workqueue_work_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: scheduler_plugin_execution_duration_seconds_bucket
+        sourceLabels: [__name__]
+      - action: drop
+        regex: apiserver_watch_events_sizes_bucket
+        sourceLabels: [__name__]
 
   prometheus:
     ## Settings affecting prometheusSpec
