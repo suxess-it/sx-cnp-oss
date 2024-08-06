@@ -44,6 +44,10 @@ kube-prometheus-stack:
         regex: apiserver_request_duration_seconds_bucket
         sourceLabels:
         - __name__
+      # Drop excessively noisy apiserver buckets.
+      - source_labels: [__name__]
+        action: drop
+        regex: 'etcd_.*'
 
   kubeEtcd:
     serviceMonitor:
