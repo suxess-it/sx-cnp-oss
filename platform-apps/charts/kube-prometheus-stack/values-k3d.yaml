@@ -40,9 +40,10 @@ kube-prometheus-stack:
   kubeApiServer:
     serviceMonitor:
       metricRelabelings:
-      - sourceLabels: [__name__]
-        action: drop
+      - action: drop
         regex: apiserver_request_duration_seconds_bucket
+        sourceLabels:
+        - __name__
 
   kubeEtcd:
     serviceMonitor:
