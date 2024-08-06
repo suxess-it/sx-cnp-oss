@@ -45,7 +45,7 @@ kube-prometheus-stack:
         sourceLabels:
         - __name__
       # Drop excessively noisy apiserver buckets.
-      - source_labels: [__name__]
+      - sourceLabels: [__name__]
         action: drop
         regex: 'etcd_.*'
 
