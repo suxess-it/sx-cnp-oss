@@ -44,6 +44,13 @@ kube-prometheus-stack:
         action: drop
         regex: apiserver_request_duration_seconds_bucket
 
+  kubeEtcd:
+    serviceMonitor:
+      metricRelabelings:
+      - sourceLabels: [__name__]
+        action: drop
+        regex: etcd_request_duration_seconds_bucket
+
     ## Settings affecting prometheusSpec
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#prometheusspec
     ##
