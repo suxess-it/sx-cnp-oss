@@ -44,10 +44,6 @@ kube-prometheus-stack:
         regex: apiserver_request_duration_seconds_bucket
         sourceLabels:
         - __name__
-      # Drop excessively noisy apiserver buckets.
-      - sourceLabels: [__name__]
-        action: drop
-        regex: 'etcd_.*'
 
   kubeEtcd:
     serviceMonitor:
@@ -56,6 +52,12 @@ kube-prometheus-stack:
         action: drop
         regex: etcd_request_duration_seconds_bucket
 
+  kubelet:
+    serviceMonitor:
+      metricRelabelings:
+      - action: drop
+        regex: apiserver_request_duration_seconds_bucket
+        sourceLabels: [__name__]
 
   prometheus:
     ## Settings affecting prometheusSpec
