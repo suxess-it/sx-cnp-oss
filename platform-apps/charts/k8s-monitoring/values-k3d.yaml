@@ -13,3 +13,6 @@ k8s-monitoring:
       queryEndpoint: "/loki/api/v1/query"
       writeEndPoint: "/loki/api/v1/push"
       tenantId: ""
+
+  opencost:
+    enabled: false
