@@ -12,7 +12,7 @@ data:
       type: loki
       uid: loki
       basicAuth: false
-      url: http://{{ template "loki.fullname" .Subcharts.loki }}:3100
+      url: http://{{ template "loki.fullname" .Subcharts.loki }}.{{ .Release.Namespace }}.svc:3100
       access: proxy
       isDefault: false
       jsonData:
