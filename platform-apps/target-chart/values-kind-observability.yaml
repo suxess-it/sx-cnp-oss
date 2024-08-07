@@ -28,7 +28,6 @@ applications:
       - ServerSideApply=true
 
   - name: tempo
-    destinationNamespaceOverwrite: monitoring
 
    
 
