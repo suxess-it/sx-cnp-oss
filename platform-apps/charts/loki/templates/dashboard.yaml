@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     grafana_dashboard: "1"
-  name: new-dashboard
-  namespace: monitoring
+  name: loki-logs
 data:
   new-dashboard.json: |-
     {
