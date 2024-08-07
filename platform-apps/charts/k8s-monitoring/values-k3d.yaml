@@ -1,0 +1,15 @@
+k8s-monitoring:
+  cluster:
+    name: "sx-cnp-oss-kind"
+  
+  externalServices:
+    prometheus:
+      host: "sx-mimir-nginx.mimir.svc"
+      queryEndpoint: "/prometheus/api/v1/query"
+      writeEndpoint: "/api/v1/push"
+      tenantId: ""
+    loki:
+      host: "sx-loki-gateway.monitoring.svc"
+      queryEndpoint: "/loki/api/v1/query"
+      writeEndPoint: "/loki/api/v1/push"
+      tenantId: ""

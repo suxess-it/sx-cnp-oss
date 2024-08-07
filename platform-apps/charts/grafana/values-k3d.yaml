@@ -1,0 +1,36 @@
+## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+##
+grafana:
+  # set cookies for backstage plugin integration
+  grafana.ini:
+    security:
+      allow_embedding: 'true'
+      cookie_samesite: none
+      cookie_secure: 'true'
+  ingress:
+    ## If true, Grafana Ingress will be created
+    ##
+    enabled: true
+    hosts: [grafana-127-0-0-1.nip.io]
+    tls:
+      - secretName: monitoring-server-tls
+        hosts:
+        - grafana-127-0-0-1.nip.io
+  # # To make Grafana persistent (Using Statefulset)
+  # #
+  persistence:
+    enabled: true
+    type: sts
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    finalizers:
+      - kubernetes.io/pvc-protection
+
+  sidecar:
+    datasources:
+      searchNamespace:
+        - grafana
+        - mimir
+        - loki
+  
