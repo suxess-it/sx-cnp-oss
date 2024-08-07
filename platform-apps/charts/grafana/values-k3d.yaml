@@ -18,14 +18,14 @@ grafana:
         - grafana-127-0-0-1.nip.io
   # # To make Grafana persistent (Using Statefulset)
   # #
-  persistence:
-    enabled: true
-    type: sts
-    accessModes:
-      - ReadWriteOnce
-    size: 1Gi
-    finalizers:
-      - kubernetes.io/pvc-protection
+  # persistence:
+  #   enabled: true
+  #   type: sts
+  #   accessModes:
+  #     - ReadWriteOnce
+  #   size: 1Gi
+  #   finalizers:
+  #     - kubernetes.io/pvc-protection
 
   sidecar:
     datasources:
