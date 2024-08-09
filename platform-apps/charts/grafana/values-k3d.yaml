@@ -1,6 +1,7 @@
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 ##
 grafana:
+  adminPassword: prom-operator
   # set cookies for backstage plugin integration
   grafana.ini:
     security:
@@ -18,16 +19,14 @@ grafana:
         - grafana-127-0-0-1.nip.io
   # # To make Grafana persistent (Using Statefulset)
   # #
-  # currently commented, because otherwise the default password doesn't work
-  # see https://community.grafana.com/t/unable-to-login-as-admin-in-grafana/119864
-  # persistence:
-  #   enabled: true
-  #   type: sts
-  #   accessModes:
-  #     - ReadWriteOnce
-  #   size: 1Gi
-  #   finalizers:
-  #     - kubernetes.io/pvc-protection
+  persistence:
+   enabled: true
+   type: sts
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    finalizers:
+      - kubernetes.io/pvc-protection
 
   sidecar:
     dashboards:
