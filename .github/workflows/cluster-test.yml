@@ -114,3 +114,16 @@ jobs:
           kubectl logs -n argocd statefulset/sx-argocd-application-controller
           kubectl logs -n argocd deployment/sx-argocd-repo-server
           kubectl logs -n argocd deployment/sx-argocd-applicationset-controller
+
+      - name: shutdown test
+        shell: bash
+        run: |
+          kubectl delete application sx-bootstrap-app -n argocd &
+          # wait max 10 minutes
+          end=$((SECONDS+600))
+          while true ; do \
+            kubectl get applications -n argocd ; \
+            if [[ $? != 0 ]]; then break ; fi ; \
+            if [ $SECONDS -gt $end ] ; then kubectl get applications -n argocd -o yaml ;exit 1; fi; \
+            sleep 5 ;
+          done
