@@ -1,0 +1,30 @@
+apiVersion: client.keycloak.crossplane.io/v1alpha1
+kind: ProtocolMapper
+metadata:
+  name: openid-user-attribute-mapper-grafana
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  forProvider:
+    clientScopeIdSelector:
+      matchLabels:
+        platform-engineer.cloud/clientscope: groups
+    realmIdRef:
+      name: {{ $.Values.deployments.keycloak.realm.realmid }}
+    protocol: openid-connect
+    protocolMapper: oidc-usermodel-client-role-mapper
+    name: grafana_role
+    config:
+      "claim.name": "${client_id}.roles"
+      "userinfo.token.claim": "true"
+      "access.token.claim": "true"
+      "id.token.claim": "true"
+      "full.path": "false"
+      "introspection.token.claim": "true"
+      "lightweight.claim": "false"
+      "multivalued": "true"
+      "usermodel.clientRoleMapping.clientId": "grafana"
+#  managementPolicies: ["Observe"]
+  providerConfigRef:
+    name: "{{ .Release.Name }}-config"

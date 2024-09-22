@@ -4,17 +4,32 @@ default:
 
 applications:
 
-  - name: cert-manager
+  - name: external-secrets
     annotations:
-      argocd.argoproj.io/sync-wave: "-3"
-
-  - name: argocd
-    annotations:
-      argocd.argoproj.io/sync-wave: "-2"
+      argocd.argoproj.io/sync-wave: "-8"
 
   - name: crossplane
     annotations:
-      argocd.argoproj.io/sync-wave: "-1"
+      argocd.argoproj.io/sync-wave: "-7"
+
+  - name: k8s-monitoring
+    annotations:
+      argocd.argoproj.io/compare-options: ServerSideDiff=true
+      argocd.argoproj.io/sync-wave: "-6"
+    syncOptions:
+      - ServerSideApply=true
+
+  - name: vault
+    annotations:
+      argocd.argoproj.io/sync-wave: "-5"
+
+  - name: cert-manager
+    annotations:
+      argocd.argoproj.io/sync-wave: "-10"
+
+  - name: argocd
+    annotations:
+      argocd.argoproj.io/sync-wave: "-9"
       
   - name: keycloak
      

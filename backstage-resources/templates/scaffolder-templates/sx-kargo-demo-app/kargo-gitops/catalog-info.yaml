@@ -22,7 +22,7 @@ metadata:
     backstage.io/techdocs-ref: dir:.
     kargo-project: "https://kargo.${{values.fqdn}}/project/${{values.team}}-${{values.application_id}}-kargo-project"
     grafana/dashboard-selector: "(tags @> 'suXess')"
-    grafana/overview-dashboard: "https://grafana.${{values.fqdn}}/d/a87fb0d919ec0ea5f6543124e16c42a5/kubernetes-compute-resources-namespace-workloads?orgId=1&refresh=10s&var-datasource=default&var-cluster=sx-loki&var-namespace=${{values.team}}-${{values.application_id}}-prod&var-type=All"
+    grafana/overview-dashboard: "https://grafana.${{values.fqdn}}/d/k8s_views_ns/kubernetes-views-namespaces?orgId=1&refresh=30s&var-datasource=default&var-cluster=suxessit-uibklab&var-namespace=${{values.team}}-${{values.application_id}}-prod&var-resolution=30s&var-created_by=All"
 spec:
   type: service
   lifecycle: prod
@@ -63,7 +63,7 @@ metadata:
     backstage.io/techdocs-ref: dir:.
     kargo-project: "https://kargo.${{values.fqdn}}/project/${{values.team}}-${{values.application_id}}-kargo-project"
     grafana/dashboard-selector: "(tags @> 'suXess')"
-    grafana/overview-dashboard: "https://grafana.${{values.fqdn}}/d/a87fb0d919ec0ea5f6543124e16c42a5/kubernetes-compute-resources-namespace-workloads?orgId=1&refresh=10s&var-datasource=default&var-cluster=sx-loki&var-namespace=${{values.team}}-${{values.application_id}}-qa&var-type=All"
+    grafana/overview-dashboard: "https://grafana.${{values.fqdn}}/d/k8s_views_ns/kubernetes-views-namespaces?orgId=1&refresh=30s&var-datasource=default&var-cluster=suxessit-uibklab&var-namespace=${{values.team}}-${{values.application_id}}-qa&var-resolution=30s&var-created_by=All"
 spec:
   type: service
   lifecycle: qa
@@ -104,7 +104,7 @@ metadata:
     backstage.io/techdocs-ref: dir:.
     kargo-project: "https://kargo.${{values.fqdn}}/project/${{values.team}}-${{values.application_id}}-kargo-project"
     grafana/dashboard-selector: "(tags @> 'suXess')"
-    grafana/overview-dashboard: "https://grafana.${{values.fqdn}}/d/a87fb0d919ec0ea5f6543124e16c42a5/kubernetes-compute-resources-namespace-workloads?orgId=1&refresh=10s&var-datasource=default&var-cluster=sx-loki&var-namespace=${{values.team}}-${{values.application_id}}-test&var-type=All"
+    grafana/overview-dashboard: "https://grafana.${{values.fqdn}}/d/k8s_views_ns/kubernetes-views-namespaces?orgId=1&refresh=30s&var-datasource=default&var-cluster=suxessit-uibklab&var-namespace=${{values.team}}-${{values.application_id}}-test&var-resolution=30s&var-created_by=All"
 spec:
   type: service
   lifecycle: test
@@ -145,7 +145,6 @@ metadata:
     backstage.io/techdocs-ref: dir:.
     kargo-project: "https://kargo.${{values.fqdn}}/project/${{values.team}}-${{values.application_id}}-kargo-project"
     grafana/dashboard-selector: "(tags @> 'suXess')"
-  #  grafana/overview-dashboard: "https://grafana.${{values.fqdn}}/d/a87fb0d919ec0ea5f6543124e16c42a5/kubernetes-compute-resources-namespace-workloads?orgId=1&refresh=10s&var-datasource=default&var-cluster=sx-loki&var-namespace=${{values.team}}-${{values.application_id}}-prod&var-type=All"
 spec:
   type: service
   lifecycle: experimental

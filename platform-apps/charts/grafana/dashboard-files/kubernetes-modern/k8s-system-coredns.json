@@ -1358,7 +1358,8 @@
   "schemaVersion": 39,
   "tags": [
     "Kubernetes",
-    "Prometheus"
+    "Prometheus",
+    "suXess"
   ],
   "templating": {
     "list": [

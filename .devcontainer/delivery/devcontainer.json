@@ -1,0 +1,50 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/kubernetes-helm-minikube
+{
+	"name": "kubrix delivery",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		"dockerfile": "../Dockerfile"
+	},
+
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"enableNonRootDocker": "true",
+			"moby": "true"
+		}
+	},
+	
+	"hostRequirements": {
+		// 4 cpus required for multi-node: https://github.com/akuityio/docs.akuity.io/issues/452#issuecomment-2111058843
+		"cpus": 4
+	},
+
+	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
+	"postStartCommand": "export TARGET_TYPE=KIND-DELIVERY ; /bin/bash -c .devcontainer/install-platform-devcontainer.sh",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+
+	"forwardPorts": [6688, 6689],
+	"portsAttributes": {
+		"6688": {
+			"label": "argocd",
+			"protocol": "http"
+		},
+		"6689": {
+			"label": "kargo",
+			"protocol": "http"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"streetsidesoftware.code-spell-checker",
+				"streetsidesoftware.code-spell-checker-british-english"
+			]
+		}
+	}
+}

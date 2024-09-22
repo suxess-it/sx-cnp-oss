@@ -7,8 +7,6 @@ applications:
   - name: cert-manager
     annotations:
       argocd.argoproj.io/sync-wave: "-3"
-    valueFiles:
-      - values.yaml
 
   - name: ingress-nginx
     annotations:
@@ -29,12 +27,25 @@ applications:
     syncOptions:
       - ServerSideApply=true
 
+  - name: crossplane
+    annotations:
+      argocd.argoproj.io/sync-wave: "-1"
+
+  - name: kargo
+
+  - name: kubecost
+
+  - name: team-onboarding
+    destinationNamespaceOverwrite: argocd
+
+  - name: argo-rollouts
+
   - name: grafana
     annotations:
       argocd.argoproj.io/compare-options: ServerSideDiff=true
     syncOptions:
       - ServerSideApply=true
-      
+
   - name: mimir
 
   - name: loki
@@ -47,25 +58,8 @@ applications:
       - ServerSideApply=true
 
   - name: tempo
-   
-  - name: kargo
-
-  - name: kubecost
-
-  - name: team-onboarding
-    destinationNamespaceOverwrite: argocd
-
-  - name: argo-rollouts
-    valueFiles:
-      - values.yaml
-
-  - name: crossplane
-    valueFiles:
-      - values.yaml
 
   - name: kyverno
-    valueFiles:
-      - values.yaml
     syncOptions:
       - ServerSideApply=true
       

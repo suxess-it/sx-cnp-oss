@@ -1,0 +1,59 @@
+apiVersion: role.keycloak.crossplane.io/v1alpha1
+kind: Role
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    platform-engineer.cloud/role: viewer
+  name: client-default-role-grafana-viewer
+spec:
+  forProvider:
+    clientIdRef:
+      name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+    name: viewer
+    description: viewer role for grafana
+    realmIdRef:
+      name: {{ $.Values.deployments.keycloak.realm.realmid }}
+  providerConfigRef:
+    name: "{{ .Release.Name }}-config"
+---
+apiVersion: role.keycloak.crossplane.io/v1alpha1
+kind: Role
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    platform-engineer.cloud/role: editor
+  name: client-default-role-grafana-editor
+spec:
+  forProvider:
+    clientIdRef:
+      name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+    name: editor
+    description: editor role for grafana
+    realmIdRef:
+      name: {{ $.Values.deployments.keycloak.realm.realmid }}
+  providerConfigRef:
+    name: "{{ .Release.Name }}-config"
+---
+apiVersion: role.keycloak.crossplane.io/v1alpha1
+kind: Role
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    platform-engineer.cloud/role: admin
+  name: client-default-role-grafana-admin
+spec:
+  forProvider:
+    clientIdRef:
+      name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+    name: admin
+    description: admin role for grafana
+    realmIdRef:
+      name: {{ $.Values.deployments.keycloak.realm.realmid }}
+  providerConfigRef:
+    name: "{{ .Release.Name }}-config"

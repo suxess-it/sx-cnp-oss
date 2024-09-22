@@ -37,7 +37,7 @@ spec:
 apiVersion: identity.vault.upbound.io/v1alpha1
 kind: Group
 metadata:
-  name: group1
+  name: team1
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "1"
@@ -47,7 +47,7 @@ spec:
   forProvider:
     metadata:
       version: "2"
-    name: group1
+    name: team1
     policies:
-    - group1
+    - team1
     type: external

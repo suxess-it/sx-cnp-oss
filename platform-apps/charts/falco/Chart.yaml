@@ -25,11 +25,11 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: falco
-    version: 4.7.2
+    version: 4.8.3
     repository: https://falcosecurity.github.io/charts
   - name: falco-exporter
     version: 0.12.1
     repository: https://falcosecurity.github.io/charts
   - name: k8s-metacollector
-    version: 0.1.9
+    version: 0.1.10
     repository: https://falcosecurity.github.io/charts

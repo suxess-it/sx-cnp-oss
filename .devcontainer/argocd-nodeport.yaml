@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devcontainer-nodeport
+  namespace: argocd
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+    nodePort: 30688
+  selector:
+    app.kubernetes.io/instance: sx-argocd
+    app.kubernetes.io/name: argocd-server
+  sessionAffinity: None

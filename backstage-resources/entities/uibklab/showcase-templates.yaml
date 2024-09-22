@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: software-templates-uibklab
+  description: A collection of Backstage templates for uibklab
+spec:
+  type: url
+  targets:
+    - https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/templates/scaffolder-templates/sx-virt-template/template.yaml

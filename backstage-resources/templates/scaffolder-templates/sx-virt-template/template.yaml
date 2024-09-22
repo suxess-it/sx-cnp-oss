@@ -1,0 +1,206 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sx-cnp-oss-kubevirt-template
+  title: kubevirt VMs Template
+  description: Run Demo VM n kubevirt provisoned with ArgoCD
+  tags:
+    - virtualization
+    - metalstack
+    - kubevirt
+    - sx-cnp-oss
+spec:
+  owner: group:sx-cnp-oss
+  type: system
+  
+  parameters:
+    - title: Provide information on this application
+      required:
+        - application_id
+        - environments
+        - description
+        - cores
+        - memory
+        - disk
+        - os
+        - initpwd
+        - team
+        - argocdtarget
+      properties:
+        application_id:
+          title: Application Name
+          type: string
+          description: Unique name of this Application (VM)
+        description:
+          title: Description
+          type: string
+          description: Help others understand what this Application (VM) is for.
+        cores:
+          title: Number of Cores 
+          type: string       
+          default: '1'
+        memory:
+          title: Size of Memory in Gi
+          type: string       
+          default: '4Gi'
+        environments:
+          title: Environments
+          type: array
+          description: Environments (Stages) needed by this vm, min 1. needed!
+          items:
+            type: string
+            enum: 
+              - prod
+              - test
+              - qa
+          uniqueItems: true
+          ui:widget: checkboxes
+        disk:
+          title: Disk size of VM
+          type: string
+          default: '10Gi'
+        initpwd:
+          title: initial pwd for user cloud-user
+          type: string
+          default: 'admin'
+        os:
+          title: OS Type
+          type: string
+          description: Select available OS for vm
+          ui:field: EntityPicker
+          ui:options:
+            allowArbitraryValues: false
+            catalogFilter:
+              - kind: Resource
+                spec.type: datasource
+        sshkey:
+          title: single ssh-key
+          type: string
+          description: "Optional: add ssh-key for login to VM"  
+        team:
+          title: Choose Team
+          type: string
+          description: Owning Team of this VM, target repo for argo application
+          ui:field: MyGroupsPicker
+          ui:options: {}
+        argocdtarget:
+          title: argocd target directory
+          type: string
+          description: Directory where argo application manifest is beeing deployed in team repo
+          default: k3d-apps
+
+    - title: Choose Location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+              additionalScopes:
+                github: 
+                  - workflow
+                  - user
+            allowedHosts:
+              - github.com
+  steps:          
+    - id: catalogFetch
+      name: Fetch Context
+      action: catalog:fetch
+      input:
+        entityRef: ${{ parameters.os }}
+ 
+    - id: catalogFetchGroup
+      name: Fetch Context
+      action: catalog:fetch
+      input:
+        entityRef: ${{ parameters.team }}
+
+    - id: template-gitops
+      name: Fetch Skeleton + Template
+      action: fetch:template
+      input:
+        url: ./kubevirt-gitops
+        targetPath: ./kubevirt-gitops
+        copyWithoutRender: []
+        values:
+          application_id: ${{ parameters.application_id }}
+          description: ${{ parameters.description }}
+          team: ${{ steps['catalogFetchGroup'].output.entity.metadata.name }}
+          environments: ${{ parameters.environments }}
+          cores: ${{ parameters.cores }}
+          memory: ${{ parameters.memory }}
+          os: ${{ steps['catalogFetch'].output.entity.metadata.name }}
+          disk: ${{ parameters.disk }}
+          initpwd: ${{ parameters.initpwd }}
+          repoUrl: ${{ parameters.repoUrl }}
+          repoUrlRepo: ${{ (parameters.repoUrl | parseRepoUrl)["repo"] }}
+          repoUrlowner: ${{ (parameters.repoUrl | parseRepoUrl)["owner"] }}
+          sshkey: ${{ parameters.sshkey }}
+
+    - id: publish-gitopsreposetup
+      name: Publish Template Gitops Repo
+      action: publish:github
+      input:
+        sourcePath: ./kubevirt-gitops
+        allowedHosts: ['github.com']
+        description: This is ${{ parameters.application_id }}
+        repoUrl: ${{ parameters.repoUrl }}
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+        gitAuthorName: ${{ user.entity.metadata.name }}
+        gitAuthorEmail: ${{ user.entity.spec.profile.email }}
+        repoVisibility: public
+        deleteBranchOnMerge: true
+        protectDefaultBranch: false
+        defaultBranch: main
+        
+    - id: template-applicationsetup
+      name: Fetch Namespacesetup Skeleton + Template
+      action: fetch:template
+      input:
+        url: ./skeleton/applicationsetup
+        targetPath: ./applicationsetup
+        copyWithoutRender: []
+        values:
+          application_id: ${{ parameters.application_id }}
+          description: ${{ parameters.description }}
+          team: ${{ steps['catalogFetchGroup'].output.entity.metadata.name }}
+          repoUrlRepo: ${{ (parameters.repoUrl | parseRepoUrl)["repo"] }}
+          repoUrlowner: ${{ (parameters.repoUrl | parseRepoUrl)["owner"] }}
+          environments: ${{ parameters.environments }}
+          argocdtarget: ${{ parameters.argocdtarget }}
+
+    - id: pull-request-applicationsetup
+      name: make a pr to team repo
+      action: publish:github:pull-request
+      input:
+        sourcePath: ./applicationsetup
+        targetPath: '.'
+        repoUrl: github.com?repo=${{ steps['catalogFetchGroup'].output.entity.metadata.name }}-apps&owner=suxess-it
+        branchName: ${{ parameters.application_id }}
+        title: argo application and system config for ${{ parameters.application_id }}
+        description: argo application and system config for ${{ parameters.application_id }}
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+        gitAuthorName: ${{ user.entity.metadata.name }}
+        gitAuthorEmail: ${{ user.entity.spec.profile.email }}
+        update: true
+
+    - id: register
+      name: Register Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps["publish-gitopsreposetup"].output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+        
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps["publish-gitopsreposetup"].output.remoteUrl }}
+      - title: Approved-Apps PR
+        url: ${{ steps["pull-request-applicationsetup"].output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

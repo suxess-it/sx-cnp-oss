@@ -1,8 +1,3 @@
-cert:
-  enabled: true
-  issuerRef: letsencrypt-staging
-  dnsName: argocd-metalstack.platform-engineer.cloud
-
 argo-cd:
   global:
     domain: argocd-metalstack.platform-engineer.cloud
@@ -47,6 +42,7 @@ argo-cd:
       annotations: 
         nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
         nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        cert-manager.io/cluster-issuer: letsencrypt-staging
       extraTls:
         - hosts:
           - argocd-metalstack.platform-engineer.cloud

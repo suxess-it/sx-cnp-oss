@@ -1,11 +1,3 @@
-cert:
-  enabled: true
-  issuerRef: letsencrypt-staging
-  dnsName: portal-metalstack.platform-engineer.cloud
-
-gardenercert:
-  enabled: false
-
 backstage:
   ingress:
     enabled: true
@@ -13,6 +5,7 @@ backstage:
     host: portal-metalstack.platform-engineer.cloud
     annotations:
       external-dns.alpha.kubernetes.io/ttl: "60"
+      cert-manager.io/cluster-issuer: letsencrypt-staging
     tls:
       enabled: true
       secretName: backstage-tls

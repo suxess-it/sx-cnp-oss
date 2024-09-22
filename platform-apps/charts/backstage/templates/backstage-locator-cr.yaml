@@ -51,3 +51,11 @@ rules:
       - aquasecurity.github.io
     resources:
       - configauditreports
+  - verbs:
+      - get
+      - list
+    apiGroups:
+      - kubevirt.io
+    resources:
+      - virtualmachines
+      - virtualmachineinstances

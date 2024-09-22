@@ -64,7 +64,7 @@ loki:
   minio:
     enabled: true
     persistence:
-      size: 10Gi
+      size: 100Gi
 
   # Monitoring section determines which monitoring features to enable
   monitoring:

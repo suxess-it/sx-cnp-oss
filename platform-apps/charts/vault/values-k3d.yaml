@@ -50,7 +50,7 @@ vault:
           runAsNonRoot: true
     extraContainers:
       - name: auto-initializer
-        image: hashicorp/vault:1.16.1
+        image: hashicorp/vault:1.17.2
         env: 
           - name: VAULT_ADDR
             valueFrom:
@@ -66,7 +66,7 @@ vault:
               while [ -z $UNSEAL_KEY ]; do
                 sleep 5
                 VAULT_STATUS=$(vault status)
-                if echo "$VAULT_STATUS" | grep -q "Initialized.*false"; then
+                if echo "$VAULT_STATUS" | grep -q "Initialized.*false" && [ $HOSTNAME = 'sx-vault-0' ]; then
                   export INIT_RESPONSE=$(vault operator init -format=json -key-shares=1 -key-threshold=1)
                   echo "$INIT_RESPONSE"
                   export UNSEAL_KEY=$(echo "$INIT_RESPONSE" | /usr/local/libexec/vault/jq -r .unseal_keys_b64[0])
@@ -92,7 +92,7 @@ vault:
           runAsNonRoot: true
 
       - name: auto-unsealer
-        image: hashicorp/vault:1.16.1
+        image: hashicorp/vault:1.17.2
         env: 
           - name: VAULT_ADDR
             valueFrom:
@@ -106,16 +106,16 @@ vault:
             while true; do
               sleep 10
               VAULT_STATUS=$(vault status)
+              if echo "$VAULT_STATUS" | grep -q "Initialized.*false" && [ $HOSTNAME != 'sx-vault-0' ]; then
+                echo joining raft cluster
+                vault operator raft join http://sx-vault-0.sx-vault-internal:8200
+                sleep 5
+              fi 
               if echo "$VAULT_STATUS" | grep -q "Initialized.*true"; then
                 if echo "$VAULT_STATUS" | grep -q "Sealed.*true"; then
                   if [ -f /vault-root-token/unseal_key ]; then
-                    #vault operator unseal -reset $(cat /vault-root-token/unseal_key)
                     vault operator unseal $(cat /vault-root-token/unseal_key)
                     sleep 5
-                    if [ $HOSTNAME != 'sx-vault-0' ]; then
-                      echo joining raft cluster
-                      vault operator raft join http://sx-vault-0.vault-internal:8200
-                    fi
                   else
                     echo unseal key not initialized yet  
                   fi
@@ -124,7 +124,7 @@ vault:
                 fi
               else  
                 echo Vault not initialized yet
-              fi     
+              fi
             done
         volumeMounts:
           - name: vault-root-token
@@ -137,7 +137,7 @@ vault:
           privileged: false
           runAsNonRoot: true
       - name: vault-initializer
-        image: hashicorp/vault:1.16.1
+        image: hashicorp/vault:1.17.2
         env: 
           - name: VAULT_ADDR
             valueFrom:
@@ -224,6 +224,7 @@ vault:
     auditStorage:
       enabled: true
       size: 1Gi
+    affinity: {}
     ha:
       enabled: true
       replicas: 1

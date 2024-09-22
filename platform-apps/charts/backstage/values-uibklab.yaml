@@ -1,6 +1,3 @@
-cert:
-  enabled: false
-
 backstage:
   ingress:
     enabled: true
@@ -246,6 +243,16 @@ backstage:
                 initialDelay: { seconds: 30 } # Customize this to fit your needs
 
       kubernetes:
+        customResources:
+          - group: 'aquasecurity.github.io'
+            apiVersion: 'v1alpha1'
+            plural: 'configauditreports'
+          - group: 'kubevirt.io'
+            apiVersion: 'v1'
+            plural: 'virtualmachines'
+          - group: 'kubevirt.io'
+            apiVersion: 'v1'
+            plural: 'virtualmachineinstances'
         serviceLocatorMethod:
           type: multiTenant
         clusterLocatorMethods:

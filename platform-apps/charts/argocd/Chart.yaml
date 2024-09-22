@@ -25,5 +25,5 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: argo-cd
-    version: 7.4.5
+    version: 7.6.1
     repository: https://argoproj.github.io/argo-helm

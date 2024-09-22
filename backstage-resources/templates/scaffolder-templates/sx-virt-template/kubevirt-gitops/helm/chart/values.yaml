@@ -1,0 +1,14 @@
+# dummy
+{%- for environment in values.environments %}
+${{environment}}:
+  description: ${{values.description}}
+  os: ${{values.os}}
+  disk: ${{values.disk}}
+  cores: ${{values.cores}}
+  memory: ${{values.memory}}
+  initpwd: ${{values.initpwd}}
+  application_id: ${{values.application_id}}
+  team: ${{values.team}}
+ # running: ${{values.running}}
+  environment: ${{environment}}
+{%- endfor %}

@@ -1,0 +1,6 @@
+description: ${{values.description}}
+cluster_id: ${{values.cluster_id}}
+type: ${{values.type}}
+instances: ${{values.instances}}
+# optional
+environments: ${{values.environments}}

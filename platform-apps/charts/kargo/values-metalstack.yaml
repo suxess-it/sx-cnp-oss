@@ -1,7 +1,3 @@
-cert:
-  enabled: true
-  issuerRef: letsencrypt-staging
-
 kargo:
   api:
    ## @param api.host The domain name where Kargo's API server will be accessible. When applicable, this is used for generation of an Ingress resource, certificates, and the OpenID Connect issuer and callback URLs. Note: The value in this field MAY include a port number and MUST NOT specify the protocol (http vs https), which is automatically inferred from other configuration options.
@@ -10,6 +6,8 @@ kargo:
       ## @param api.ingress.enabled Whether to enable ingress. By default, this is disabled. Enabling ingress is advanced usage.
       enabled: true
       ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-staging
       tls:
         enabled: true
         selfSignedCert: false

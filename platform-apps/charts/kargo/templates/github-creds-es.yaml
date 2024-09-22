@@ -1,0 +1,31 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: github-creds
+  namespace: kargo
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  labels:
+    kargo.akuity.io/cred-type: git
+spec:
+  refreshInterval: "15s"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: github-creds
+    template:
+      data:
+        password: "{{ `{{ .GITHUB_TOKEN }}` }}"
+        username: "{{ `{{ .GITHUB_USERNAME }}` }}"
+        repoURL: "^https://github.com/suxess-it"
+        repoURLIsRegex: "true"
+  data:
+  - secretKey: GITHUB_TOKEN
+    remoteRef:
+      key: sx-cnp-oss-kv/data/demo/delivery
+      property: GITHUB_TOKEN
+  - secretKey: GITHUB_USERNAME
+    remoteRef:
+      key: sx-cnp-oss-kv/data/demo/delivery
+      property: GITHUB_USERNAME

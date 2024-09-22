@@ -1,0 +1,72 @@
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Roles
+metadata:
+  name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}-grafana-group-roles
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    exhaustive: false
+    groupIdRef:
+      name: admins
+    realmIdRef: 
+      name: {{ .Values.deployments.keycloak.realm.realmid }}
+    roleIdsSelector:
+      matchLabels:
+        platform-engineer.cloud/role: admin
+  initProvider: {}
+  managementPolicies:
+    - '*'
+  providerConfigRef:
+    name: sx-keycloak-config
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Roles
+metadata:
+  name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}-grafana-group-roles-viewer
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    exhaustive: false
+    groupIdRef:
+      name: users
+    realmIdRef: 
+      name: {{ .Values.deployments.keycloak.realm.realmid }}
+    roleIdsSelector:
+      matchLabels:
+        platform-engineer.cloud/role: editor
+  initProvider: {}
+  managementPolicies:
+    - '*'
+  providerConfigRef:
+    name: sx-keycloak-config
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Roles
+metadata:
+  name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}-grafana-group-roles-viewer-team1
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    exhaustive: false
+    groupIdRef:
+      name: team1
+    realmIdRef: 
+      name: {{ .Values.deployments.keycloak.realm.realmid }}
+    roleIdsSelector:
+      matchLabels:
+        platform-engineer.cloud/role: viewer
+  initProvider: {}
+  managementPolicies:
+    - '*'
+  providerConfigRef:
+    name: sx-keycloak-config
+---

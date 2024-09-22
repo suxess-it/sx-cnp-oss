@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: Team-Onboarding
-  title: Team-Onboarding
+  name: Team-Onboarding2
+  title: Team-Onboarding2
   description: Onboarding a new stream-aligned-team via PR for the platform-team
   tags:
     - onboarding
@@ -10,7 +10,7 @@ metadata:
     - team
 
 spec:
-  owner: user:phac008
+  owner: group:sx-cnp-oss
   type: onboarding
   parameters:
     - title: Provide Team Name
@@ -85,7 +85,7 @@ spec:
                 organization: suxess-it
 
     - id: publish
-      name: Publish to Github
+      name: Publish new Version of team configuration
       action: publish:github:pull-request
       input:
         repoUrl: github.com?repo=sx-cnp-oss&owner=suxess-it
@@ -94,9 +94,41 @@ spec:
         targetPath: platform-apps/charts/team-onboarding
         branchName: onboarding-team-${{ steps['catalogFetch'].output.entity.metadata.name }}
         targetBranchName: main
+        update: true
         token: ${{ secrets.USER_OAUTH_TOKEN }}
         gitAuthorName: ${{ user.entity.metadata.name }}
         gitAuthorEmail: ${{ user.entity.spec.profile.email }}
+
+    - id: template-teamrepo
+      name: Fetch reposetup
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: .
+        copyWithoutTemplating: []
+        values:
+          description: ${{ parameters.description }}
+          team: ${{ steps['catalogFetch'].output.entity.metadata.name }}
+          repoUrlRepo: ${{ (parameters.repoUrl | parseRepoUrl)["repo"] }}
+          repoUrlowner: ${{ (parameters.repoUrl | parseRepoUrl)["owner"] }}
+          environments: ${{ parameters.environments }}
+          argocdtarget: ${{ parameters.argocdtarget }}
+
+    - id: repocreate
+      name: create team-apps Github repo
+      action: publish:github
+      input:
+        repoUrl: github.com?repo=${{ steps['catalogFetch'].output.entity.metadata.name }}-apps&owner=suxess-it
+        title: team-apps repo for ${{ steps['catalogFetch'].output.entity.metadata.name }}
+        description: team-apps repo for ${{ steps['catalogFetch'].output.entity.metadata.name }}
+        token: ${{ secrets.USER_OAUTH_TOKEN }}
+        gitAuthorName: ${{ user.entity.metadata.name }}
+        gitAuthorEmail: ${{ user.entity.spec.profile.email }}
+        gitCommitMessage: Team Onboarding for ${{ steps['catalogFetch'].output.entity.metadata.name }}
+        repoVisibility: public
+        deleteBranchOnMerge: true
+        protectDefaultBranch: false
+        defaultBranch: main
 
   output:
     remoteUrl: '{{ steps.publish.output.remoteUrl }}'

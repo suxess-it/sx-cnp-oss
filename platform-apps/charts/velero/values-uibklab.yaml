@@ -2,33 +2,23 @@ velero:
 #### temp
   image:
     repository: velero/velero
-    tag: v1.13.2 
-# temp downgrade to 1.13.2 due to #7975
+    tag: v1.14.1 
   initContainers:
     - name: velero-plugin-for-aws
       image: velero/velero-plugin-for-aws:v1.8.2
-#      image: velero/velero-plugin-for-aws:v1.10.0 # disable due to #382
+#      image: velero/velero-plugin-for-aws:v1.10.1 # disable due to #382
       imagePullPolicy: IfNotPresent
       volumeMounts:
         - mountPath: /target
           name: plugins
-        - mountPath: /etc/ssl/certs/ca.crt
-          subPath: ca.crt
-          name: certs
     - name: velero-plugin-for-microsoft-azure
-      image: velero/velero-plugin-for-microsoft-azure:v1.10.0
+      image: velero/velero-plugin-for-microsoft-azure:v1.10.1
       imagePullPolicy: IfNotPresent
       volumeMounts:
         - mountPath: /target
           name: plugins
     - name: kubevirt-velero-plugin
       image: quay.io/kubevirt/kubevirt-velero-plugin:v0.7.0
-      imagePullPolicy: IfNotPresent
-      volumeMounts:
-        - mountPath: /target
-          name: plugins
-    - name: velero-plugin-for-csi
-      image: velero/velero-plugin-for-csi:v0.7.0
       imagePullPolicy: IfNotPresent
       volumeMounts:
         - mountPath: /target
@@ -50,10 +40,9 @@ velero:
         memory: 128Mi
   configuration:
     backupStorageLocation:
-    - name: default
+    - name: minio
       provider: aws
       bucket: velero
-      default: true
       config:
         region: minio
         s3ForcePathStyle: true
@@ -61,22 +50,19 @@ velero:
         s3Url: http://sx-minio.minio.svc.cluster.local:9000
         publicUrl: https://minio.lab.suxessit.k8s.cloud.uibk.ac.at
         insecureSkipTLSVerify: true # temp for minio/local deployment
-    - name: uibk
+    - name: default
       provider: aws
+      default: true
       bucket: suxess-bucket-test
-      default: false
+      caCert: ""
       credential:
         name: netapp-credentials
         key: cloud
       config:
         region: us-east-1
         s3ForcePathStyle: true
-        serverSideEncryption: SHA256
-        #checksumAlgorithm: ''
-        #s3Url: https://minio-127-0-0-1.nip.io
         s3Url: https://nasvm-lc2test.intra.uibk.ac.at
-        #publicUrl: https://nasvm-lc2test.intra.uibk.ac.at
-        #insecureSkipTLSVerify: true # temp for minio/local deployment   
+        insecureSkipTLSVerify: true #temp 
     volumeSnapshotLocation:
     - name:
       provider: aws
@@ -85,25 +71,14 @@ velero:
        incremental: true
     uploaderType: kopia # kopia when using datamover, alternative: restic
     features: EnableCSI
+    logLevel: debug
     defaultVolumesToFsBackup: false # false when using datamover
-    extraEnvVars:
-      AWS_CA_BUNDLE: /etc/ssl/certs/ca.crt
-    repositoryMaintenanceJob:
-      latestJobsCount:
-  extraVolumes:
-    - name: certs
-      configMap:
-        name: cert-bundle  
   serviceAccount:
     server:
       create: true
       name: velero
   credentials:
-    secretContents: 
-      cloud: |
-        [default]
-        aws_access_key_id=minio
-        aws_secret_access_key=minio123
+    existingSecret: velero-cloud-credential 
   snapshotsEnabled: true
   deployNodeAgent: true
   configMaps:
@@ -112,4 +87,4 @@ velero:
         velero.io/plugin-config: ""
         velero.io/pod-volume-restore: RestoreItemAction
       data:
-        image: velero/velero-restore-helper:v1.10.2
+        image: velero/velero-restore-helper:v1.14.1

@@ -71,13 +71,16 @@ deployments:
           password: "test"
       groups:
         - name: admins
+          mfa: false # valid if .keycloak.mfa.enabled is true, disable for admin 
           members:
             - backstageadmin
             - demoadmin
-        - name: group1
+        - name: team1
+          mfa: true # valid if .keycloak.mfa.enabled is true 
           members:
             - demouser
         - name: users
+          mfa: true # valid if .keycloak.mfa.enabled is true 
           members: 
             - phac
             - jokl
@@ -92,6 +95,14 @@ deployments:
       config:
         clientID: vault
         clientSecret: demosecret
+    # grafana client
+    grafanaclient:
+      config:
+        clientID: grafana
+        clientSecret: demosecret
+    # start with 2FA mobile Authenticators
+    mfa:
+      enabled: true
 # PersistenVolume / PersistenVolumeClaims
 pv:
   name: postgres-pv

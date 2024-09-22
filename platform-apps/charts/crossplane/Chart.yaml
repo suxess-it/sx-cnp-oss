@@ -25,6 +25,6 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: crossplane
-    version: 1.16.0
+    version: 1.17.1
     repository: https://charts.crossplane.io/stable
 

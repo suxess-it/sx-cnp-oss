@@ -2,7 +2,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: "${{values.cluster_id}}"
-  description: "${{values.cluster_id}}" metalstack.cloud
+  description: "${{values.cluster_id}} metalstack.cloud"
   tags:
     - sx-cnp-oss
     - template

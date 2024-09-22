@@ -65,10 +65,10 @@ helm install sx-argocd argo-cd \
 
 # create secret for scm applicationset in team app definition namespaces
 # see https://github.com/suxess-it/sx-cnp-oss/issues/214 for a sustainable solution
-for ns in adn-team1 adn-team2 adn-team-a; do
-  kubectl create namespace ${ns}
-  kubectl create secret generic appset-github-token --from-literal=token=${GITHUB_APPSET_TOKEN} -n ${ns}
-done
+#for ns in adn-team1 adn-team2 adn-team-a; do
+#  kubectl create namespace ${ns}
+#  kubectl create secret generic appset-github-token --from-literal=token=${GITHUB_APPSET_TOKEN} -n ${ns}
+#done
 
 CURRENT_BRANCH_SED=$( echo ${CURRENT_BRANCH} | sed 's/\//\\\//g' )
 
@@ -79,7 +79,8 @@ curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}
 URL=https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/target-chart/values-$(echo ${TARGET_TYPE} | awk '{print tolower($0)}').yaml
 
 argocd_apps=$(curl -L $URL | awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
-argocd_apps_without_backstage=$(curl -L $URL | grep -v backstage | awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
+# list apps which need some sort of special treatment in bootstrap
+argocd_apps_without_individual=$(curl -L $URL | egrep -Ev "backstage|kargo" | awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
 
 # max wait for 20 minutes
 max_wait_time=1200
@@ -89,7 +90,7 @@ end=$((SECONDS+${max_wait_time}))
 all_apps_synced="true"
 while [ $SECONDS -lt $end ]; do
   all_apps_synced="true"
-  for app in ${argocd_apps_without_backstage} ; do
+  for app in ${argocd_apps_without_individual} ; do
     kubectl get application -n argocd ${app} | grep "Synced.*Healthy"
     exit_code=$?
     if [[ $exit_code -ne 0 ]]; then
@@ -97,7 +98,7 @@ while [ $SECONDS -lt $end ]; do
     fi
   done
   if [ ${all_apps_synced} = "true" ] ; then
-    echo "${argocd_apps_without_backstage} apps are synced"
+    echo "${argocd_apps_without_individual} apps are synced"
     break
   fi
   kubectl get application -n argocd
@@ -119,15 +120,46 @@ fi
 # apply argocd-secret to set a secretKey
 kubectl apply -f https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/charts/argocd/manual-secret/argocd-secret.yaml
 
-# if kargo is part of this stack, create kargo credentials secret so kargo can do git promotion
+# if kargo is part of this stack, upload token to vault
 if [[ $( echo $argocd_apps | grep sx-kargo ) ]] ; then
-  kubectl create secret generic -n kargo github-creds --from-literal=password=${GITHUB_TOKEN} --from-literal=username=jkleinlercher --from-literal=repoURL="^https://github.com/suxess-it" --from-literal=repoURLIsRegex=true
-  kubectl label secret github-creds -n kargo kargo.akuity.io/cred-type=git
+  echo "adding special configuration for sx-kargo"
+  export VAULT_HOSTNAME=$(kubectl get ingress -o jsonpath='{.items[*].spec.rules[*].host}' -n vault)
+  curl -k --header "X-Vault-Token:$(kubectl get secret -n vault vault-init -o=jsonpath='{.data.root_token}'  | base64 -d)" --request POST --data "{\"data\": {\"GITHUB_APPSET_PAT\": \"$VAULT_TOKEN\", \"GITHUB_TOKEN\": \"$VAULT_TOKEN\", \"GITHUB_USERNAME\": \"jkleinlercher\"}}" https://${VAULT_HOSTNAME}/v1/sx-cnp-oss-kv/data/demo/delivery
+  sleep 10
+  kubectl delete ExternalSecret github-creds -n kargo
+  # check if kargo is already synced 
+  # max wait for 5 minutes
+  argocd_app_individual="sx-kargo"
+
+  max_wait_time=900
+  start=$SECONDS
+  end=$((SECONDS+${max_wait_time}))
+
+  all_apps_synced="true"
+  while [ $SECONDS -lt $end ]; do
+    all_apps_synced="true"
+    for app in ${argocd_app_individual} ; do
+      kubectl get application -n argocd ${app} | grep "Synced.*Healthy"
+      exit_code=$?
+      if [[ $exit_code -ne 0 ]]; then
+        all_apps_synced="false"
+      fi
+    done
+    if [ ${all_apps_synced} = "true" ] ; then
+      echo "${argocd_app_individual} apps are synced"
+      break
+    fi
+    kubectl get application -n argocd
+    elapsed_time=$((SECONDS-${start}))
+    echo "elapsed time: ${elapsed_time} seconds"
+    echo "max wait time: ${max_wait_time} seconds"
+    sleep 10
+  done
 fi
 
 # if backstage is part of this stack, create the manual secret for backstage
 if [[ $( echo $argocd_apps | grep sx-backstage ) ]] ; then
-
+echo "adding special configuration for sx-backstage"
   # get hostnames
   # gethostnames from ingress - to remove TARGET_TYPE 
   export ARGOCD_HOSTNAME=$(kubectl get ingress -o jsonpath='{.items[*].spec.rules[*].host}' -n argocd)
@@ -146,7 +178,7 @@ if [[ $( echo $argocd_apps | grep sx-backstage ) ]] ; then
 
   # check if backstage is already synced (it will still be degraded because of the missing secret we create in the next step)
   # max wait for 5 minutes
-  argocd_app_backstage="sx-backstage"
+  argocd_app_individual="sx-backstage"
 
   max_wait_time=900
   start=$SECONDS
@@ -155,7 +187,7 @@ if [[ $( echo $argocd_apps | grep sx-backstage ) ]] ; then
   all_apps_synced="true"
   while [ $SECONDS -lt $end ]; do
     all_apps_synced="true"
-    for app in ${argocd_app_backstage} ; do
+    for app in ${argocd_app_individual} ; do
       kubectl get application -n argocd ${app} | grep "Synced.*"
       exit_code=$?
       if [[ $exit_code -ne 0 ]]; then
@@ -163,7 +195,7 @@ if [[ $( echo $argocd_apps | grep sx-backstage ) ]] ; then
       fi
     done
     if [ ${all_apps_synced} = "true" ] ; then
-      echo "${argocd_app_backstage} apps are synced"
+      echo "${argocd_app_individual} apps are synced"
       break
     fi
     kubectl get application -n argocd

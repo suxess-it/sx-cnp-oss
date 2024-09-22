@@ -33,5 +33,5 @@ metadata:
   #  render.crossplane.io/runtime: Development
 spec:
   # This is ignored when using the Development runtime.
-  package: registry.gitlab.com/corewire/images/crossplane/function-keycloak-builtin-objects:v0.7.0
+  package: registry.gitlab.com/corewire/images/crossplane/function-keycloak-builtin-objects:v1.0.0
   packagePullPolicy: Always

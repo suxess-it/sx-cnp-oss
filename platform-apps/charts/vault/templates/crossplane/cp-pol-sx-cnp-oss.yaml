@@ -1,3 +1,4 @@
+
 apiVersion: vault.vault.upbound.io/v1alpha1
 kind: Policy
 metadata:
@@ -58,7 +59,7 @@ spec:
 apiVersion: vault.vault.upbound.io/v1alpha1
 kind: Policy
 metadata:
-  name: group1
+  name: team1
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
     argocd.argoproj.io/sync-wave: "1"
@@ -66,9 +67,9 @@ spec:
   providerConfigRef:
     name: vault-crossplane-providerconfig
   forProvider:
-    name: group1
+    name: team1
     policy: |
-      path "sx-cnp-oss-kv/data/group1" {
+      path "sx-cnp-oss-kv/data/team1" {
         capabilities = ["read","list","create","update",]
       }
       path "sx-cnp-oss-kv/*" {

@@ -1,0 +1,28 @@
+{{- range .Values.teams }}
+{{- if .multiStageKargoAppSet }}
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: {{ .name }}-secret
+  namespace: adn-{{ .name }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  refreshInterval: "15s"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: appset-github-token
+    template:
+      data:
+        token: "{{ `{{ .GITHUB_APPSET_PAT }}` }}"
+  data:
+  - secretKey: GITHUB_APPSET_PAT
+    remoteRef:
+      key: sx-cnp-oss-kv/data/demo/delivery
+      property: GITHUB_APPSET_PAT
+---
+{{- end }}
+{{- end }}
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devcontainer-nodeport
+  namespace: keycloak
+spec:
+  type: NodePort
+  ports:
+    - name: "keycloak-service"
+      port: 8080
+      nodePort: 30692
+  selector:
+    app: "keycloak-service"
+  sessionAffinity: None

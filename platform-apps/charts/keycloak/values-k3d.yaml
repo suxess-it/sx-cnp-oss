@@ -72,7 +72,7 @@ deployments:
           members:
             - backstageadmin
             - demoadmin
-        - name: group1
+        - name: team1
           members:
             - demouser
         - name: users
@@ -90,7 +90,14 @@ deployments:
       config:
         clientID: vault
         clientSecret: demosecret
-
+    # grafana client
+    grafanaclient:
+      config:
+        clientID: grafana
+        clientSecret: demosecret
+    # start with 2FA mobile Authenticators
+    mfa:
+      enabled: false
 # PersistenVolume / PersistenVolumeClaims
 pv:
   name: postgres-pv

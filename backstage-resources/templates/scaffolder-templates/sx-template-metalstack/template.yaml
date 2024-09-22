@@ -1,15 +1,16 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: sx-cnp-oss--template-metalstack
-  title: sx-cnp-oss Cluster Template for metalstack cloud
-  description: Start metalstack.cloud cluster with ArgoCD
+  name: sx-cnp-oss-template-metalstack
+  title: Create Cluster on metalstack.cloud
+  description: Start metalstack.cloud cluster and integrate to ArgoCD
   tags:
     - cloud
     - metalstack
     - baremetal
+    - sx-cnp-oss
 spec:
-  owner: user:phac008
+  owner: group:sx-cnp-oss
   type: system
   
   parameters:
@@ -17,10 +18,11 @@ spec:
       required:
         - cluster_id
         - description
-        - owner
+        - team
         - instances
         - type
         - environments
+        - argocdtarget
       properties:
         cluster_id:
           title: Name
@@ -30,14 +32,12 @@ spec:
           title: Description
           type: string
           description: Help others understand what this cluster is for.
-        owner:
-          title: Owner
+        team:
+          title: Choose Team
           type: string
-          description: Owner of this cluster
-          ui:field: OwnerPicker
-          ui:options:
-            allowedKinds: 
-              - User
+          description: Owning Team of this VM, target repo for argo application
+          ui:field: MyGroupsPicker
+          ui:options: {}
         instances:
           title: Number of Nodes (max. 3)
           type: string       
@@ -54,14 +54,19 @@ spec:
           ui:widget: checkboxes
         environments:
           title: Environments
-          type: array
-          description: Environments needed by this vm
-          items:
-            type: string
-            enum:
-              - prod
-              - test
-              - qa
+          type: string
+          description: Panned Stage for new Cluster?
+          enum:
+            - prod
+            - test
+            - qa
+          uniqueItems: true
+        argocdtarget:
+          title: argocd target directory
+          type: string
+          description: Directory where argo application manifest is beeing deployed in team repo
+          default: k3d-apps
+
 ## TODO: Maintenancewindow
     - title: Choose a location
       required:
@@ -81,6 +86,12 @@ spec:
             allowedHosts:
               - github.com
   steps:
+    - id: catalogFetchGroup
+      name: Fetch Context
+      action: catalog:fetch
+      input:
+        entityRef: ${{ parameters.team }}
+
     - id: template-gitops
       name: Fetch Skeleton + Template
       action: fetch:template
@@ -91,7 +102,7 @@ spec:
         values:
           cluster_id: ${{ parameters.cluster_id }}
           description: ${{ parameters.description }}
-          owner: ${{ parameters.owner }}
+          owner: ${{ parameters.team }}
           instances: ${{ parameters.instances }}
           type: ${{ parameters.type }}
           environments: ${{ parameters.environments }}
@@ -113,6 +124,7 @@ spec:
         repoVisibility: public
         deleteBranchOnMerge: true
         protectDefaultBranch: false
+        update: true
         
     - id: template-applicationsetup
       name: Fetch Namespacesetup Skeleton + Template
@@ -127,20 +139,23 @@ spec:
           repoUrlRepo: ${{ (parameters.repoUrl | parseRepoUrl)["repo"] }}
           repoUrlowner: ${{ (parameters.repoUrl | parseRepoUrl)["owner"] }}
           environments: ${{ parameters.environments }}
+          argocdtarget: ${{ parameters.argocdtarget }}
+
 
     - id: pull-request-applicationsetup
-      name: make a pr to approved-application repo with additional applicationsetup
+      name: make a pr to team-apps repo with additional applicationsetup
       action: publish:github:pull-request
       input:
         sourcePath: ./applicationsetup
         targetPath: '.'
-        repoUrl: github.com?repo=approved-application&owner=suxess-it
+        repoUrl: github.com?repo=${{ steps['catalogFetchGroup'].output.entity.metadata.name }}-apps&owner=suxess-it
         branchName: ${{ parameters.cluster_id }}
         title: argoapps and system config for ${{ parameters.cluster_id }}
         description: argoapps and system config for ${{ parameters.cluster_id }}
         token: ${{ secrets.USER_OAUTH_TOKEN }}
         gitAuthorName: ${{ user.entity.metadata.name }}
         gitAuthorEmail: ${{ user.entity.spec.profile.email }}
+        update: true
 
     - id: register
       name: Register Catalog

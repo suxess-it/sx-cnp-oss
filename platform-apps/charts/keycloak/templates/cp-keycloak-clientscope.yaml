@@ -18,3 +18,24 @@ spec:
       name: {{ $.Values.deployments.keycloak.realm.realmid }}
   providerConfigRef:
     name: "{{ .Release.Name }}-config"
+---
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientScope
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    platform-engineer.cloud/clientscope: groups
+  name: openid-client-scope-openid
+spec:
+  forProvider:
+    description: When requested, add openid scope
+    guiOrder: 1
+    consentScreenText: "openid"
+    includeInTokenScope: true
+    name: openid
+    realmIdRef:
+      name: {{ $.Values.deployments.keycloak.realm.realmid }}
+  providerConfigRef:
+    name: "{{ .Release.Name }}-config"

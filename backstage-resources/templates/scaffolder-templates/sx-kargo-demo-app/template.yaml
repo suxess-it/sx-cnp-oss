@@ -10,7 +10,7 @@ metadata:
     - kubex
     - example
 spec:
-  owner: user:phac008
+  owner: group:sx-cnp-oss
   type: onboarding
   
   parameters:

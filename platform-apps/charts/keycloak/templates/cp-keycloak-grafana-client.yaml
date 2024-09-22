@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ .Release.Name }}-client-{{ .Values.deployments.keycloak.grafanaclient.config.clientID }}-password"
+type: Opaque
+stringData:
+  {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}: {{ .Values.deployments.keycloak.grafanaclient.config.clientSecret }}
+
+---
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    accessType: CONFIDENTIAL 
+    clientId: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+    name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+    realmId: {{ .Values.deployments.keycloak.realm.realmid }}
+    adminUrl: "https://grafana{{ .Values.deployments.ingress.fqdn }}"
+    rootUrl: "https://grafana{{ .Values.deployments.ingress.fqdn }}"
+    webOrigins: 
+      - "https://grafana{{ .Values.deployments.ingress.fqdn }}"
+    directAccessGrantsEnabled: true
+    standardFlowEnabled: true
+    serviceAccountsEnabled: false
+#    managementPolicies: ["Observe"]
+    validRedirectUris:
+ #     - "http://grafana{{ .Values.deployments.ingress.fqdn }}:3000/login/generic_oauth"
+      - "https://grafana{{ .Values.deployments.ingress.fqdn }}/login/generic_oauth"
+    clientSecretSecretRef:
+      key: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+      name: "{{ .Release.Name }}-client-{{ .Values.deployments.keycloak.grafanaclient.config.clientID }}-password"
+      namespace: {{ .Release.Namespace }}
+    loginTheme: keycloak
+  providerConfigRef:
+    name: "{{ .Release.Name }}-config"

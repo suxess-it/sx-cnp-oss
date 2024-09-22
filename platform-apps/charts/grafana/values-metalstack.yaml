@@ -1,0 +1,62 @@
+metalstackDashboards:
+  enabled: true
+
+kubernetesModernDashboards:
+  enabled: true
+
+## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+##
+grafana:
+  adminPassword: prom-operator
+  # set cookies for backstage plugin integration
+  grafana.ini:
+    security:
+      allow_embedding: 'true'
+      cookie_samesite: none
+      cookie_secure: 'true'
+  ingress:
+    ## If true, Grafana Ingress will be created
+    ##
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      external-dns.alpha.kubernetes.io/ttl: "60"
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+    hosts: [grafana-metalstack.platform-engineer.cloud]
+    tls:
+      - secretName: grafana-server-tls
+        hosts:
+        - grafana-metalstack.platform-engineer.cloud
+        
+  # # To make Grafana persistent (Using Statefulset)
+  # #
+  persistence:
+    enabled: true
+    type: sts
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    finalizers:
+      - kubernetes.io/pvc-protection
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+      multicluster:
+        global:
+          enabled: true
+    datasources:
+      enabled: true
+      label: grafana_datasource
+      labelValue: "1"
+      searchNamespace:
+        - grafana
+        - mimir
+        - loki
+        - kubecost
+
+  defaultDashboardsEditable: true
+  

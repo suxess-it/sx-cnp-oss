@@ -1,0 +1,38 @@
+mimir:
+  nginx:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        external-dns.alpha.kubernetes.io/ttl: "60"
+        cert-manager.io/cluster-issuer: letsencrypt-staging
+      hosts:
+        - host: metrics-monitoring-metalstack.platform-engineer.cloud
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: mimir-nginx-tls
+          hosts:
+            - metrics-monitoring-metalstack.platform-engineer.cloud
+  mimir:
+    structuredConfig:
+      limits:
+        max_global_series_per_user: 500000
+  distributor:
+    resources:
+      limits:
+        cpu: 3.5
+        memory: 6Gi
+  ingester:
+    resources:
+      limits:
+        cpu: 5
+        memory: 6Gi
+    persistentVolume:
+      size: 5Gi
+
+
+  minio:
+    persistence:
+      size: 10Gi

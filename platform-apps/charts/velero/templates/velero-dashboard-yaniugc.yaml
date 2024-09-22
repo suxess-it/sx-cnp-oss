@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    grafana_dashboard: "1"
-  name: velero-dashboard-yaniugc
-data:
-  velero-dashboard-yaniugc.json: |-
-{{ .Files.Get "dashboard-files/velero-dashboard-yaniugc.json" | indent 4 }}

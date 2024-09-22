@@ -3,10 +3,10 @@
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: phac008
+  name: pachmueller
 spec:
   profile:
-    displayName: phac008
+    displayName: pachmueller
     email: guest@example.com
     picture: https://avatars.dicebear.com/api/avataaars/guest@example.com.svg?background=%23fff
   memberOf: [sx-cnp-oss]
@@ -26,7 +26,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
   name: sx-cnp-oss
-  description: Super Team
+  description: sx CNP Team
 spec:
   type: team
   profile:
@@ -35,61 +35,6 @@ spec:
     picture: https://api.dicebear.com/7.x/identicon/svg?seed=Fluffy&backgroundType=solid,gradientLinear&backgroundColor=ffd5dc,b6e3f4
   parent: backstage
   children: []
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: AntoniusUIBK
-spec:
-  profile:
-    displayName: AntoniusUIBK
-    email: guest@example.com
-    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
-  memberOf: [sx-cnp-oss]
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: florianfa
-spec:
-  profile:
-    displayName: florianfa
-    email: guest@example.com
-    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
-  memberOf: [sx-cnp-oss]
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: retrogaming457
-spec:
-  profile:
-    displayName: retrogaming457
-    email: guest@example.com
-    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
-  memberOf: [sx-cnp-oss]
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: HTHDOTCOM
-spec:
-  profile:
-    displayName: HTHDOTCOM
-    email: guest@example.com
-    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
-  memberOf: [sx-cnp-os]
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: webnotesweb
-spec:
-  profile:
-    displayName: webnotesweb
-    email: guest@example.com
-    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
-  memberOf: [sx-cnp-os]
 ---
 # This user is added as an example, to make it more easy for the "Guest"
 # sign-in option to demonstrate some entities being owned. In a regular org,

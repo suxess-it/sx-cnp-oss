@@ -6,7 +6,6 @@ metadata:
 spec:
   type: url
   targets:
-    - https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/templates/scaffolder-templates/sx-virt-template-metalstack/template.yaml
     - https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/templates/scaffolder-templates/docs-template/template.yaml
     - https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/templates/scaffolder-templates/sx-kargo-demo-app/template.yaml
     - https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/templates/scaffolder-templates/sx-template-metalstack/template.yaml

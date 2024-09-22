@@ -1,0 +1,17 @@
+{{- range $stage, $values := .Values }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $values.application_id }}-{{ $stage }}
+  namespace: {{ $values.team }}-{{ $values.application_id }}
+  labels:
+    vm: {{ $values.application_id }}
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    vm: {{ $values.application_id }}
+  {{- end }}

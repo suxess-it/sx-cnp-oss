@@ -1,0 +1,24 @@
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientDefaultScopes
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
+  name: client-default-scopes-grafana
+spec:
+  forProvider:
+    clientIdRef:
+      name: {{ .Values.deployments.keycloak.grafanaclient.config.clientID }}
+    defaultScopes:
+    - profile
+    - email
+    - roles
+    - web-origins
+    - groups
+    - acr
+    - offline_access
+    - openid
+    realmIdRef:
+      name: {{ $.Values.deployments.keycloak.realm.realmid }}
+  providerConfigRef:
+    name: "{{ .Release.Name }}-config"

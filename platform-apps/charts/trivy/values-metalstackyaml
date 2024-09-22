@@ -1,0 +1,11 @@
+trivy-operator:
+  targetNamespaces: "" # scan all namespaces
+  operator:
+    metricsVulnIdEnabled: true
+  serviceMonitor:
+    enabled: true
+  trivyOperator:
+    reportResourceLabels: "backstage.io/kubernetes-id"
+  trivy:
+    ignoreUnfixed: true
+    timeout: "10m0s"

@@ -9,7 +9,7 @@ metadata:
     - techdocs
     - mkdocs
 spec:
-  owner: backstage/techdocs-core
+  owner: group:sx-cnp-oss
   type: documentation
 
   parameters:

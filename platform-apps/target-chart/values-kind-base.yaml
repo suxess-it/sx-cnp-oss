@@ -12,12 +12,12 @@ applications:
     annotations:
       argocd.argoproj.io/sync-wave: "-9"
 
-  - name: k8s-monitoring
-    annotations:
-      argocd.argoproj.io/compare-options: ServerSideDiff=true
-      argocd.argoproj.io/sync-wave: "-1"
-    syncOptions:
-      - ServerSideApply=true
+#  - name: k8s-monitoring
+#    annotations:
+#      argocd.argoproj.io/compare-options: ServerSideDiff=true
+#      argocd.argoproj.io/sync-wave: "-1"
+#    syncOptions:
+#      - ServerSideApply=true
 
   - name: crossplane
     annotations:
@@ -47,7 +47,7 @@ applications:
 
   - name: keycloak
     annotations:
-      argocd.argoproj.io/sync-wave: "-7"
+      argocd.argoproj.io/sync-wave: "-6"
 
 #  - name: kargo
 
@@ -72,11 +72,11 @@ applications:
     annotations:
       argocd.argoproj.io/sync-wave: "-7"
 
-  - name: velero
-    annotations:
-      argocd.argoproj.io/sync-wave: "5"
+#  - name: velero
+#    annotations:
+#      argocd.argoproj.io/sync-wave: "5"
 #  - name: velero-ui
 
-  - name: minio
-    annotations:
-      argocd.argoproj.io/sync-wave: "-6"
+#  - name: minio
+#    annotations:
+##      argocd.argoproj.io/sync-wave: "-6"

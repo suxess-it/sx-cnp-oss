@@ -13,4 +13,5 @@ spec:
     - ./uibklab/k8s-monitoring.yaml
     - ./uibklab/kubecost-info.yaml
     - ./uibklab/kubevirt-manager-info.yaml
-
+    - ./uibklab/user-info.yaml
+    - ./uibklab/showcase-templates.yaml

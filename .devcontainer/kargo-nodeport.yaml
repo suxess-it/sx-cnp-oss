@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devcontainer-nodeport
+  namespace: kargo
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+    nodePort: 30689
+  selector:
+    app.kubernetes.io/component: api
+    app.kubernetes.io/instance: sx-kargo
+    app.kubernetes.io/name: kargo
+  sessionAffinity: None

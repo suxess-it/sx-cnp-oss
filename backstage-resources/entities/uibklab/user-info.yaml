@@ -1,0 +1,82 @@
+# required user for demo environment https://github.com/suxess-it/sx-cnp-oss/issues/87
+# until user management set up properly
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: uibklab
+  description: Lab UIBK Team
+spec:
+  type: team
+  profile:
+    # Intentional no displayName for testing
+    email: uibk@example.com
+    picture: https://api.dicebear.com/7.x/identicon/svg?seed=Fluffy&backgroundType=solid,gradientLinear&backgroundColor=ffd5dc,b6e3f4
+  parent: backstage
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: AntoniusUIBK
+spec:
+  profile:
+    displayName: AntoniusUIBK
+    email: guest@example.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
+  memberOf: [uibklab]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: florianfa
+spec:
+  profile:
+    displayName: florianfa
+    email: guest@example.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
+  memberOf: [uibklab]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: retrogaming457
+spec:
+  profile:
+    displayName: retrogaming457
+    email: guest@example.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
+  memberOf: [uibklab]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: HTHDOTCOM
+spec:
+  profile:
+    displayName: HTHDOTCOM
+    email: guest@example.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
+  memberOf: [uibklab]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: webnotesweb
+spec:
+  profile:
+    displayName: webnotesweb
+    email: guest@example.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
+  memberOf: [uibklab]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: poonehkashi
+spec:
+  profile:
+    displayName: poonehkashi
+    email: guest@example.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=transparent
+  memberOf: [uibklab]
+---

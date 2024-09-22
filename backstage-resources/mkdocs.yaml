@@ -10,9 +10,14 @@ nav:
   - Overview: index.md
   - Onboarding teams and apps: ONBOARDING.md
   - Observability: observability.md
+  - GRC:
+      - Backup and Recovery: grc/backuprecovery.md
+      - Identity and Access Management: grc/iam.md
   - Application Migration:
       - Migration Process Steps: application-migration/migration-process.md
       - Learning Path for Developers: application-migration/learning-path.md
   - Platform-Admin Documentation:
       - Adding and maintaining building blocks: platform-building-blocks.md
       - Testing the platform: platform-testing.md
+      - Mimir Runbooks: runbooks/mimir.md
+      - Loki Runbooks: runbooks/loki.md

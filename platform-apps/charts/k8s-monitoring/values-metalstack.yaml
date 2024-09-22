@@ -1,0 +1,137 @@
+k8s-monitoring:
+
+  alloy:
+    logging:
+      # -- Level at which Alloy log lines should be written.
+      # @section -- Deployment: [Alloy](https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy)
+      level: info
+
+  cluster:
+    name: "suxessit-metalstack"
+  
+  externalServices:
+    prometheus:
+      host: "http://sx-mimir-nginx.mimir.svc"
+      queryEndpoint: "/prometheus/api/v1/query"
+      writeEndpoint: "/api/v1/push"
+      tenantId: ""
+    loki:
+      host: "http://sx-loki-gateway.loki.svc"
+      queryEndpoint: "/loki/api/v1/query"
+      writeEndPoint: "/loki/api/v1/push"
+      tenantId: ""
+
+  opencost:
+    enabled: false
+
+  metrics:
+    apiserver:
+      enabled: true
+      metricsTuning:
+        includeMetrics:
+          - apiserver_requested_deprecated_apis
+          - apiserver_request_total
+          - apiserver_request_duration_seconds_sum
+          - apiserver_request_duration_seconds_count
+          - workqueue_depth
+          - process_cpu_seconds_total
+          - process_resident_memory_bytes
+          - apiserver_requested_deprecated_apis
+    kube-state-metrics:
+      metricsTuning:
+        includeMetrics:
+          - kube_namespace_created
+          - kube_namespace_labels
+          - kube_pod_container_status_running
+          - kube_pod_container_status_ready
+          - kube_pod_container_status_waiting
+          - kube_pod_container_status_terminated
+          - kube_service_info
+          - kube_endpoint_info
+          - kube_ingress_info
+          - kube_deployment_labels
+          - kube_statefulset_labels
+          - kube_daemonset_labels
+          - kube_persistentvolumeclaim_info
+          - kube_hpa_labels
+          - kube_configmap_info
+          - kube_secret_info
+          - kube_networkpolicy_labels
+          - kube_node_info
+          - kube_pod_status_qos_class
+          - kube_pod_container_status_last_terminated_exitcode
+    cadvisor:
+      metricsTuning:
+        includeMetrics:
+          - machine_cpu_cores
+          - container_oom_events_total
+          - container_cpu_cfs_throttled_seconds_total
+    kubelet:
+      metricsTuning:
+        includeMetrics:
+          - kubelet_volume_stats_used_bytes
+    node-exporter:
+      metricsTuning:
+        includeMetrics:
+          - node_uname_info
+          - node_time_seconds
+          - node_boot_time_seconds
+          - node_load1
+          - node_load5
+          - node_load15
+          - node_context_switches_total
+          - node_intr_total
+          - node_filefd_maximum
+          - node_filefd_allocated
+          - node_timex_estimated_error_seconds
+          - node_timex_maxerror_seconds
+          - node_network_receive_errs_total
+          - node_network_transmit_errs_total
+          - node_network_receive_packets_total
+          - node_network_transmit_packets_total
+          - node_netstat_Tcp_CurrEstab
+          - node_nf_conntrack_entries
+          - node_nf_conntrack_entries_limit
+          - node_disk_read_bytes_total
+          - node_disk_written_bytes_total
+          - node_disk_reads_completed_total
+          - node_disk_writes_completed_total
+          - node_disk_io_now
+  extraConfig: |
+    mimir.rules.kubernetes "rules" {
+      address = nonsensitive(remote.kubernetes.secret.metrics_service.data["host"])
+      tenant_id = "anonymous"
+
+      rule_namespace_selector {
+          match_labels = {
+            "kubernetes.io/metadata.name" = "k8s-monitoring",
+          }
+      }
+      rule_selector {
+          match_labels = {}
+      }
+    }
+
+    discovery.relabel "coredns" {
+      targets = discovery.kubernetes.pods.targets
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_k8s_app"]
+        regex = "kube-dns"
+        action = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_port_number"]
+        regex = "9153"
+        action = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label = "instance"
+      }
+    }
+    prometheus.scrape "coredns" {
+      job_name     = "integrations/coredns"
+      targets      = discovery.relabel.coredns.output
+      honor_labels = true
+      forward_to   = [prometheus.relabel.metrics_service.receiver]
+    }

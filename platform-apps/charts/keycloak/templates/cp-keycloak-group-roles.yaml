@@ -8,6 +8,7 @@ metadata:
 spec:
   deletionPolicy: Delete
   forProvider:
+    exhaustive: false
     groupIdRef:
       name: {{ .Values.deployments.keycloak.backstageclient.config.clientID }}-admin
     realmIdRef: 
