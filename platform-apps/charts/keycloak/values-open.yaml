@@ -1,0 +1,112 @@
+# Postgres account data, web server certificates, and keycloak admin user
+secrets:
+  postgres:
+    name: postgres-credentials
+    admin:
+      name: postgres
+      password: postgres
+  tls:
+    name: keycloak-server-tls
+  keycloak:
+    name: keycloak-secrets
+    admin:
+      name: admin
+      password: admin
+
+gardenercert:
+  enabled: true
+  # dnsnames set by .Values.deployments.ingress.host
+
+# Postgres, Keycloak and Ingress deployments
+deployments:
+  securePort: 443
+  postgres:
+    image:
+      name: postgres:latest
+    db:
+      name: keycloak
+    service:
+      name: postgres
+      port: 5432
+    volume:
+      name: postgres-storage
+      path: /var/lib/postgresql/data
+  ingress:
+    className: nginx
+    fqdn: .apps.cluster1.mcp.pitagora.at # add to prefix keycloak in templates
+  keycloak:
+    version: 25.0.2
+    service:
+      name: keycloak-service
+    ports:
+      containerPort: 8080
+    # keycloak realm config
+    realm:
+      realmid: sx-cnp-oss
+      users:
+        - name: phac
+          firstName: Philipp
+          lastName: Achmueller
+          email: "philipp.achmueller@platform-engineer.cloud"
+          password: "test"
+        - name: jokl
+          firstName: Johannes
+          lastName: Kleinlercher
+          email: "johannes.kleinlercher@platform-engineer.cloud"
+          password: "test"
+        - name: backstageadmin
+          firstName: MrBackstage
+          lastName: MrAdmin
+          email: "backstageadmin@platform-engineer.cloud"
+          password: "test"
+        - name: demouser
+          firstName: demo
+          lastName: user
+          email: "demouser@platform-engineer.cloud"
+          password: "test"
+        - name: demoadmin
+          firstName: demo
+          lastName: admin
+          email: "demoadmin@platform-engineer.cloud"
+          password: "test"
+      groups:
+        - name: admins
+          mfa: false # valid if .keycloak.mfa.enabled is true, disable for admin 
+          members:
+            - backstageadmin
+            - demoadmin
+        - name: team1
+          mfa: true # valid if .keycloak.mfa.enabled is true 
+          members:
+            - demouser
+        - name: users
+          mfa: true # valid if .keycloak.mfa.enabled is true 
+          members: 
+            - phac
+            - jokl
+        - name: backstage-admin # for service-account permission workaround
+    # backstage client
+    backstageclient:
+      config:
+        clientID: backstage
+        clientSecret: demosecret
+    # vault client
+    vaultclient:
+      config:
+        clientID: vault
+        clientSecret: demosecret
+    # grafana client
+    grafanaclient:
+      config:
+        clientID: grafana
+        clientSecret: demosecret
+    # start with 2FA mobile Authenticators
+    mfa:
+      enabled: true
+# PersistenVolume / PersistenVolumeClaims
+pv:
+  name: postgres-pv
+  size: 1Gi
+pvc:
+  name: postgres-pvc
+  size: 1Gi

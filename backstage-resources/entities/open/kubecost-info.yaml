@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kubecost
+  title: Kubecost
+  description: Kubecost 
+  links: 
+    - url: https://kubecost.apps.cluster1.mcp.pitagora.at
+      title: Kubecost Instance of sx-cnp-oss
+      icon: web
+    - url: https://docs.kubecost.com
+      title: Official Documentation
+      icon: web
+spec:
+  type: cost-provider
+  lifecycle: production
+  owner: sx-cnp-oss
+  system: sx-cnp-oss

@@ -1,0 +1,302 @@
+backstage:
+  ingress:
+    enabled: true
+    className: nginx
+    host: portal.apps.cluster1.mcp.pitagora.at
+    annotations:
+      external-dns.alpha.kubernetes.io/ttl: "60"
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+    tls:
+      enabled: true
+      secretName: backstage-tls
+
+  backstage:
+    image:
+      registry: ghcr.io/suxess-it
+      repository: sx-backstage
+      tag: latest
+    extraEnvVarsSecrets:
+      - sx-cnp-secret
+      - manual-secret
+    extraEnvVars:
+      - name: NODE_OPTIONS
+        value: "--no-node-snapshot"
+    appConfig:
+      app:
+        title: sX CNP App
+        baseUrl: https://portal.apps.cluster1.mcp.pitagora.at
+
+      organization:
+        name: sX CNP
+
+      backend:
+        # Used for enabling authentication, secret is shared by all backend plugins
+        # See https://backstage.io/docs/tutorials/backend-to-backend-auth for
+        # information on the format
+        auth:
+          keys:
+            - secret: ${BACKEND_SECRET}
+        baseUrl: https://portal.apps.cluster1.mcp.pitagora.at
+        listen:
+          port: 7007
+          # Uncomment the following host directive to bind to specific interfaces
+          # host: 127.0.0.1
+        csp:
+          connect-src: ["'self'", 'http:', 'https:']
+          frame-src: ['*.platform-engineer.cloud']
+          # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+          # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+        cors:
+          origin: https://portal.apps.cluster1.mcp.pitagora.at
+          methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+          credentials: true
+        # This is for local development only, it is not recommended to use this in production
+        # The production database configuration is stored in app-config.production.yaml
+        database:
+          client: better-sqlite3
+          connection: ':memory:'
+        cache:
+          store: memory
+        # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+
+      integrations:
+        github:
+          - host: github.com
+            # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+            # about setting up the GitHub integration here: https://backstage.io/docs/getting-started/configuration#setting-up-a-github-integration
+            token: ${GITHUB_TOKEN}
+          ### Example for how to add your GitHub Enterprise instance using the API:
+          # - host: ghe.example.net
+          #   apiBaseUrl: https://ghe.example.net/api/v3
+          #   token: ${GHE_TOKEN}
+
+      proxy:
+        ### Example for how to add a proxy endpoint for the frontend.
+        ### A typical reason to do this is to handle HTTPS and CORS for internal services.
+        # '/test':
+        #   target: 'https://example.com'
+        #   changeOrigin: true
+        "/argocd/api":
+          target: https://argocd.apps.cluster1.mcp.pitagora.at/api/v1/
+          changeOrigin: true
+          secure: false
+          headers:
+            Cookie:
+              $env: ARGOCD_AUTH_TOKEN
+
+        '/grafana/api':
+          # May be a public or an internal DNS
+          target: https://grafana.apps.cluster1.mcp.pitagora.at
+          secure: false
+          headers:
+            Authorization: Bearer ${GRAFANA_TOKEN}
+
+      argocd:
+        baseUrl: https://argocd.apps.cluster1.mcp.pitagora.at
+        username: admin
+        password: admin
+        appLocatorMethods:
+          - type: 'config'
+            instances:
+              - name: main
+                url: https://argocd.apps.cluster1.mcp.pitagora.at
+
+      # Reference documentation http://backstage.io/docs/features/techdocs/configuration
+      # Note: After experimenting with basic setup, use CI/CD to generate docs
+      # and an external cloud storage when deploying TechDocs for production use-case.
+      # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+      techdocs:
+        builder: 'local' # Alternatives - 'external'
+        generator:
+          runIn: 'local' # Alternatives - 'local'
+        publisher:
+          type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+      auth:
+        environment: development
+        providers:
+          github:
+            development:
+              clientId: ${GITHUB_CLIENTID}
+              clientSecret: ${GITHUB_CLIENTSECRET}
+              signIn:
+                resolvers:
+                  - resolver: usernameMatchingUserEntityName
+          guest: {}
+
+      scaffolder: {}
+        # see https://backstage.io/docs/features/software-templates/configuration for software template options
+
+      explore:
+        tools:
+          - title: Announcements
+            description: Updates for your Employees
+            url: /announcement
+            image: /homepage/images/announcements.jpg
+            tags:
+              - Announcement
+              - Employee
+              - noHashtag
+          - title: Central Monitoring
+            description: Central Monitoring
+            url: /monitoring
+            image: /homepage/images/monitoring.jpg
+            tags:
+              - Monitoring
+              - notReallyavailable
+          - title: Platforms
+            description: Discover other companies platforms
+            url: /platforms
+            image: /homepage/images/platforms.jpg
+            tags:
+              - platforms
+              - notReallyavailable
+          - title: Infrastructure
+            description: Recommended products for Platform Missions
+            url: /infrastructure
+            image: /homepage/images/infrastructure.jpg
+            tags:
+              - infrastructure
+              - notReallyavailable
+          - title: Client SDKs
+            description: corporate building blocks
+            url: /cliendsdk
+            image: /homepage/images/sdk.jpg
+            tags:
+              - clientSDK
+              - notReallyavailable
+          - title: Hubs
+            description: User experiences arount specific domains of interest
+            url: /hubs
+            image: /homepage/images/hubs.jpg
+            tags:
+              - hubs
+              - notReallyavailable
+          - title: Apps
+            description: Official sX Apps
+            url: /hubs
+            image: /homepage/images/apps.jpg
+            tags:
+              - apps
+              - notReallyavailable
+      catalog:
+        import:
+          entityFilename: catalog-info.yaml
+          pullRequestBranchName: backstage-integration
+        rules:
+          - allow: [Component, System, API, Resource, Location, Template, Domain, User, Group ]
+        locations:
+          - type: url
+            target: https://github.com/suxess-it/sx-cnp-oss-demo-app/blob/main/catalog-info-metalstack.yaml
+          - type: url
+            target: https://github.com/jkleinlercher/test9-repo/blob/master/catalog-info.yaml
+          - type: url
+            target: https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/templates/showcase-templates.yaml
+            rules:
+              - allow: [Template]
+          - type: url
+            target: https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/entities/all.yaml
+          - type: url
+            target: https://github.com/suxess-it/sx-cnp-oss/blob/main/backstage-resources/entities/open.yaml
+
+      kubernetes:
+        serviceLocatorMethod:
+          type: multiTenant
+        clusterLocatorMethods:
+          - type: config
+            clusters:
+              - url: https://kubernetes.default.svc
+                name: openshift
+                authProvider: serviceAccount
+                skipTLSVerify: true
+                skipMetricsLookup: true
+                serviceAccountToken: ${K8S_SA_TOKEN}
+
+      scorecards:
+        jsonDataUrl: https://raw.githubusercontent.com/Oriflame/backstage-plugins/main/plugins/score-card/sample-data/
+
+      
+      grafana:
+        # Publicly accessible domain
+        domain: https://grafana.apps.cluster1.mcp.pitagora.at
+
+        # Is unified alerting enabled in Grafana?
+        # See: https://grafana.com/blog/2021/06/14/the-new-unified-alerting-system-for-grafana-everything-you-need-to-know/
+        # Optional. Default: false
+        unifiedAlerting: false
+
+      costInsights:
+        engineerCost: 200000
+        engineerThreshold: 0.5
+        products:
+          computeEngine:
+            name: Compute Engine
+            icon: compute
+          cloudDataflow:
+            name: Cloud Dataflow
+            icon: data
+          cloudStorage:
+            name: Cloud Storage
+            icon: storage
+          bigQuery:
+            name: BigQuery
+            icon: search
+          events:
+            name: Events
+            icon: data
+        metrics:
+          DAU:
+            name: Daily Active Users
+            default: true
+          MSC:
+            name: Monthly Subscribers
+        currencies:
+          engineers:
+            label: 'Engineers 🛠'
+            unit: 'engineer'
+          usd:
+            label: 'US Dollars 💵'
+            kind: 'USD'
+            unit: 'dollar'
+            prefix: '$'
+            rate: 1
+          carbonOffsetTons:
+            label: 'Carbon Offset Tons ♻️⚖️s'
+            kind: 'CARBON_OFFSET_TONS'
+            unit: 'carbon offset ton'
+            rate: 3.5
+          beers:
+            label: 'Beers 🍺'
+            kind: 'BEERS'
+            unit: 'beer'
+            rate: 4.5
+          pintsIceCream:
+            label: 'Pints of Ice Cream 🍦'
+            kind: 'PINTS_OF_ICE_CREAM'
+            unit: 'ice cream pint'
+            rate: 5.5
+
+      kubecost:
+        baseUrl: https://kubecost.apps.cluster1.mcp.pitagora.at
+        sharedNamespaces: kube-system
+        queryframes: week,yesterday,month,today,lastweek
+        annotationDeploymentName: 'backstage.io/kubernetes-id'
+        shareTenancyCosts: true
+        aggregate: true
+        showDashboardLink: true
+        fractionDigits: 4 
+        unitprefix: '€'
+
+      vault:
+        baseUrl: https://${VAULT_ADDR}
+        publicUrl: https://${VAULT_ADDR}
+        token: "${VAULT_TOKEN}"
+        #secretEngine: "${VAULT_ENGINE}"
+        #kvVersion: 2
+
+      jira:
+        # Defaults to /jira/api and can be omitted if proxy is configured for that url
+        proxyPath: /jira/api
+        # Add it in case your JIRA instance is connected to Confluence, in order to filter those activities
+        # confluenceActivityFilter: wiki@uuid
+        # Defaults to latest and can be omitted if you want to use the latest version of the api

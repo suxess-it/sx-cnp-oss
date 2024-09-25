@@ -1,0 +1,39 @@
+mimir:
+  nginx:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        cert-manager.io/cluster-issuer: letsencrypt-staging
+      hosts:
+        - host: metrics-monitoring.apps.cluster1.mcp.pitagora.at
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: mimir-nginx-tls
+          hosts:
+            - metrics-monitoring.apps.cluster1.mcp.pitagora.at
+  mimir:
+    structuredConfig:
+      limits:
+        max_global_series_per_user: 500000
+  distributor:
+    resources:
+      limits:
+        cpu: 3.5
+        memory: 6Gi
+  ingester:
+    resources:
+      limits:
+        cpu: 5
+        memory: 12Gi
+    persistentVolume:
+      size: 50Gi
+
+
+  minio:
+    persistence:
+      size: 100Gi

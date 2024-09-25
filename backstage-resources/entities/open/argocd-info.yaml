@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: argocd
+  title: ArgoCD
+  description: Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes. We use ArgoCD for ...
+  links:
+    - url: https://argocd.apps.cluster1.mcp.pitagora.at
+      title: Instance of namespaced ArgoCD
+      icon: web
+    - url: https://argo-cd.readthedocs.io/en/stable/
+      title: Documentation
+      icon: web
+spec:
+  type: cd-provider
+  lifecycle: production
+  owner: sx-cnp-oss
+  system: sx-cnp-oss

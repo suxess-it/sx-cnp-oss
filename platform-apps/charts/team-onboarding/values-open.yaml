@@ -1,0 +1,32 @@
+teams:
+  - name: team1
+    sourceRepos:
+      - '*'
+    clusterResourceWhitelist:
+      - group: ""
+        kind: Namespace
+      - group: kargo.akuity.io
+        kind: Project
+    appOfAppsRepo:
+      repoURL: https://github.com/suxess-it/team1-apps
+      path: uibklab-apps
+      revision: main
+    multiStageKargoAppSet:
+      organization: suxess-it
+
+# new team stanza for team team-a
+  - name:  team-a
+    sourceRepos:
+      - '*'
+    clusterResourceWhitelist:
+      - group: ""
+        kind: Namespace
+      - group: kargo.akuity.io
+        kind: Project
+    appOfAppsRepo:
+      repoURL: https://github.com/suxess-it/team-a-apps
+      path: uibklab-apps
+      revision: main
+    multiStageKargoAppSet:
+      organization: suxess-it
+

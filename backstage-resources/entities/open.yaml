@@ -1,0 +1,14 @@
+---
+# locations
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: openshift-location
+  description: A collection of all Backstage entities for metalstack clusters
+spec:
+  targets:
+    - ./open/argocd-info.yaml
+    - ./open/backstage-info.yaml
+    - ./open/k8s-monitoring.yaml
+    - ./open/kubecost-info.yaml
+    - ./open/kubevirt-manager-info.yaml

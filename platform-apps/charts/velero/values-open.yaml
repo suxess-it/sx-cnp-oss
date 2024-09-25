@@ -1,0 +1,77 @@
+velero:
+#### temp
+  image:
+    repository: velero/velero
+    tag: v1.14.1 
+  initContainers:
+    - name: velero-plugin-for-aws
+      image: velero/velero-plugin-for-aws:v1.8.2
+#      image: velero/velero-plugin-for-aws:v1.10.1 # disable due to #382
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - mountPath: /target
+          name: plugins
+    - name: velero-plugin-for-microsoft-azure
+      image: velero/velero-plugin-for-microsoft-azure:v1.10.1
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - mountPath: /target
+          name: plugins
+    - name: kubevirt-velero-plugin
+      image: quay.io/kubevirt/kubevirt-velero-plugin:v0.7.0
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - mountPath: /target
+          name: plugins
+  metrics:
+    serviceMonitor:
+      enabled: true
+    nodeAgentPodMonitor:
+      enabled: true
+    prometheusRule:
+      enabled: true
+  crdjob:
+    resources:
+      requests:
+        cpu: 128m
+        memory: 128Mi
+      limits:
+        cpu: 128m
+        memory: 128Mi
+  configuration:
+    backupStorageLocation:
+    - name: default
+      provider: aws
+      bucket: velero
+      config:
+        region: minio
+        s3ForcePathStyle: true
+        #s3Url: https://minio-127-0-0-1.nip.io
+        s3Url: http://sx-minio.minio.svc.cluster.local:9000
+        publicUrl: https://minio.apps.cluster1.mcp.pitagora.at
+        insecureSkipTLSVerify: true # temp for minio/local deployment
+    volumeSnapshotLocation:
+    - name:
+      provider: aws
+      config:
+       region: minio
+       incremental: true
+    uploaderType: kopia # kopia when using datamover, alternative: restic
+    features: EnableCSI
+    logLevel: debug
+    defaultVolumesToFsBackup: false # false when using datamover
+  serviceAccount:
+    server:
+      create: true
+      name: velero
+  credentials:
+    existingSecret: velero-cloud-credential 
+  snapshotsEnabled: true
+  deployNodeAgent: true
+  configMaps:
+    fs-restore-action-config:
+      labels:
+        velero.io/plugin-config: ""
+        velero.io/pod-volume-restore: RestoreItemAction
+      data:
+        image: velero/velero-restore-helper:v1.14.1

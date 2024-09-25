@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kubevirt-manager
+  title: kubevirt-manager
+  description: kubevirt Manager UI
+  links: 
+    - url: https://kubevirt.apps.cluster1.mcp.pitagora.at
+      title: sx-cnp-oss Instance of kubevirt-manager
+      icon: web
+    - url: https://kubevirt-manager.io/
+      title: Official Documentation
+      icon: web
+spec:
+  type: virtualization
+  lifecycle: production
+  owner: sx-cnp-oss
+  system: sx-cnp-oss

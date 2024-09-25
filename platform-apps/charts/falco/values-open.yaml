@@ -1,0 +1,77 @@
+falco:
+  scc:
+    create: false
+
+  tty: true
+
+  driver:
+    enabled: true
+    #kind: ebpf
+    kind: modern-bpf
+    kubernetes:
+      enabled: true
+
+  falco:
+    grpc:
+      enabled: true
+      bind_address: "unix:///run/falco/falco.sock"
+    # when threadiness is 0, Falco automatically guesses it depending on the number of online cores
+      threadiness: 0
+
+    grpc_output:
+      enabled: true
+
+  falcosidekick:
+    enabled: true
+    webui:
+      enabled: true
+      replicaCount: 1
+      ingress:
+        enabled: true
+        annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        cert-manager.io/cluster-issuer: letsencrypt-staging     
+        ingressClassName: nginx
+        hosts:
+          - host: falco.apps.cluster1.mcp.pitagora.at
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+            - secretName: falco-server-tls
+              hosts:
+                - falco.apps.cluster1.mcp.pitagora.at
+    replicaCount: 1
+    serviceMonitor:
+      enabled: true
+    prometheusRules:
+      enabled: true
+    config:
+      loki:
+        hostport: "http://sx-loki.loki.svc.cluster.local:3100"
+
+falco-exporter:
+  falco:
+    grpcUnixSocketPath: "unix:///run/falco/falco.sock"
+    grpcTimeout: 3m
+
+  serviceMonitor:
+    enabled: true
+  grafanaDashboard:
+    enabled: true
+    namespace: falco
+
+  prometheusRules:
+    enabled: true
+
+k8s-metacollector:
+  serviceMonitor:
+    create: true
+  grafana:
+    dashboards:
+      enabled: true
+      configMaps:
+        collector:
+          name: k8s-metacollector-grafana-dashboard
+          namespace: "falco"

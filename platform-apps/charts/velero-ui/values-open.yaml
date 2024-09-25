@@ -1,0 +1,34 @@
+vui:
+  global:
+    veleroNamespace: velero
+    kubernetesClusterDomain: cluster.local
+    clusterName: "suxessit--lab"
+
+  apiConfig:
+    apiEnableDocumentation: "1"
+    k8SInClusterMode: "True"
+    origins1: 'https://velero-ui.apps.cluster1.mcp.pitagora.at'
+    veleroCliVersion: v1.14.0
+    existingSecret: velero-ui-credential
+
+  uiIngress:
+    enabled: true
+    host: velero-ui.apps.cluster1.mcp.pitagora.at
+    ingressClassName: nginx
+    metadata:
+      annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        cert-manager.io/cluster-issuer: letsencrypt-staging
+    spec:
+      tls:
+        - secretName: velero-ui-tls
+          hosts:
+            - velero-ui.apps.cluster1.mcp.pitagora.at
+  
+  uiNp: # NodePort
+    enabled: false
+    ip: ""
+    apiPort: "30001"
+    uiPort: "30002"
+

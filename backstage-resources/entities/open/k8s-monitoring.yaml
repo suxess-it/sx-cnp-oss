@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: k8s-monitoring
+  title: k8s-monitoring
+  description: Helm-Chart with integrated Alloy to scrape metrics, logs and traces for Mimir, Loki and Tempo
+  links: 
+    - url: https://grafana.apps.cluster1.mcp.pitagora.at
+      title: Grafana Instance for sx-cnp-oss
+      icon: web
+    - url: https://github.com/grafana/k8s-monitoring-helm
+      title: Official Documentation
+      icon: web
+spec:
+  type: observability
+  lifecycle: production
+  owner: sx-cnp-oss
+  system: sx-cnp-oss

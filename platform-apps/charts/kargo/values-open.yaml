@@ -1,0 +1,38 @@
+cert:
+  enabled: false
+
+kargo:
+  api:
+   ## @param api.host The domain name where Kargo's API server will be accessible. When applicable, this is used for generation of an Ingress resource, certificates, and the OpenID Connect issuer and callback URLs. Note: The value in this field MAY include a port number and MUST NOT specify the protocol (http vs https), which is automatically inferred from other configuration options.
+    host: kargo.apps.cluster1.mcp.pitagora.at
+    ingress:
+      ## @param api.ingress.enabled Whether to enable ingress. By default, this is disabled. Enabling ingress is advanced usage.
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        cert-manager.io/cluster-issuer: letsencrypt-staging
+      tls:
+        enabled: true
+        selfSignedCert: false
+    tls:
+      enabled: false
+
+    adminAccount:
+      ## @param api.adminAccount.enabled Whether to enable the admin account.
+      enabled: true
+      ## @param api.adminAccount.passwordHash Bcrypt password hash for the admin account. If specified, will ignore `password`. A value **must** be provided for either this field or `password`.
+      passwordHash: "$2y$10$7FtRo..bKM5qcrp8dv.7f.TDAQLRSge47Dpi8sLM4sWbWqd9kQAha"
+      ## @param api.adminAccount.tokenSigningKey Key used to sign ID tokens (JWTs) for the admin account. It is suggested that you generate this using a password manager or a command like: `openssl rand -base64 29 \| tr -d "=+/" \| cut`. A value **must** be provided for this field, unless `api.secret.name` is specified.
+      tokenSigningKey: "QHaMHv3x7nSxk5VvRc7R6oacmTbnAk3cQoS29Cg"
+
+    argocd:
+      ## @param api.argocd.urls Mapping of Argo CD shards names to URLs to support deep links to Argo CD URLs. If sharding is not used, map the empty string to the single Argo CD URL.
+      urls:
+        "": https://argocd.apps.cluster1.mcp.pitagora.at
+
+  controller:
+    globalCredentials:
+      namespaces:
+        - kargo
