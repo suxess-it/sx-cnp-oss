@@ -1,7 +1,6 @@
 backstage:
   ingress:
     enabled: true
-    className: nginx
     host: portal.apps.cluster1.mcp.pitagora.at
     annotations:
       route.openshift.io/termination: edge   

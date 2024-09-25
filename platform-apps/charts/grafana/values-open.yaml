@@ -50,15 +50,10 @@ grafana:
     ## If true, Grafana Ingress will be created
     ##
     enabled: true
-    ingressClassName: nginx
     annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-staging
+      route.openshift.io/termination: edge   
     hosts: [grafana.apps.cluster1.mcp.pitagora.at]
-    tls:
-      - secretName: grafana-server-tls
-        hosts:
-        - grafana.apps.cluster1.mcp.pitagora.at
-        
+       
   # # To make Grafana persistent (Using Statefulset)
   # #
   persistence:

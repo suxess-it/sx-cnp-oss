@@ -29,17 +29,12 @@ falco:
       ingress:
         enabled: true
         annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-staging     
-        ingressClassName: nginx
+          route.openshift.io/termination: edge   
         hosts:
           - host: falco.apps.cluster1.mcp.pitagora.at
             paths:
               - path: /
                 pathType: Prefix
-        tls:
-            - secretName: falco-server-tls
-              hosts:
-                - falco.apps.cluster1.mcp.pitagora.at
     replicaCount: 1
     serviceMonitor:
       enabled: true
