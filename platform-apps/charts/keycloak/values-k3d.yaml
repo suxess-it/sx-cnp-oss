@@ -31,6 +31,8 @@ deployments:
       name: postgres-storage
       path: /var/lib/postgresql/data
   ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: HTTP
     fqdn: -127-0-0-1.nip.io # add to prefix keycloak in templates
   keycloak:
     version: 25.0.2

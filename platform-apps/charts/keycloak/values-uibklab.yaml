@@ -33,6 +33,11 @@ deployments:
       path: /var/lib/postgresql/data
   ingress:
     className: nginx
+    annotations:
+      cert.gardener.cloud/purpose: managed
+      dns.gardener.cloud/class: garden
+      dns.gardener.cloud/dnsnames: keycloak.lab.suxessit.k8s.cloud.uibk.ac.at
+      dns.gardener.cloud/ttl: "180"    
     fqdn: .lab.suxessit.k8s.cloud.uibk.ac.at # add to prefix keycloak in templates
   keycloak:
     version: 25.0.2

@@ -14,7 +14,7 @@ secrets:
       password: admin
 
 gardenercert:
-  enabled: true
+  enabled: false
   # dnsnames set by .Values.deployments.ingress.host
 
 # Postgres, Keycloak and Ingress deployments
@@ -32,7 +32,8 @@ deployments:
       name: postgres-storage
       path: /var/lib/postgresql/data
   ingress:
-    className: nginx
+    annotations:
+      route.openshift.io/termination: edge   
     fqdn: .apps.cluster1.mcp.pitagora.at # add to prefix keycloak in templates
   keycloak:
     version: 25.0.2

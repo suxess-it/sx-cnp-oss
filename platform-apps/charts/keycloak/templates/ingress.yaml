@@ -2,14 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: "{{ .Values.deployments.keycloak.service.name }}"
+  {{- with .Values.deployments.ingress.annotations }}
   annotations:
-{{- if .Values.gardenercert.enabled }}
-    cert.gardener.cloud/purpose: managed
-    dns.gardener.cloud/class: garden
-    dns.gardener.cloud/dnsnames: keycloak{{ .Values.deployments.ingress.fqdn }}
-    dns.gardener.cloud/ttl: "180"
-{{- end }}
-    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
 #    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 #    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
 spec:
