@@ -7,3 +7,22 @@ metadata:
     argocd.argoproj.io/sync-wave: "-10"
 spec:
   package: xpkg.upbound.io/upbound/provider-vault:v1.0.0
+  runtimeConfigRef:
+    name: serviceaccount
+---
+apiVersion: pkg.crossplane.io/v1beta1
+kind: DeploymentRuntimeConfig
+metadata:
+  name: serviceaccount
+spec:
+# var 1
+#  deploymentTemplate:
+#    spec:
+#      selector: {}
+#      template:
+#        spec:
+#          serviceAccountName: default
+# var 2
+  serviceAccountTemplate:
+    metadata:
+      name: provider-vault
