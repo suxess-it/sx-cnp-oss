@@ -4,10 +4,11 @@ default:
 
 applications:
 
-  - name: cert-manager
-    annotations:
-      argocd.argoproj.io/sync-wave: "-3"
-
+# use cert-manager operator from openshift
+#  - name: cert-manager
+#    annotations:
+#      argocd.argoproj.io/sync-wave: "-3"
+#
   - name: ingress-nginx
     annotations:
       argocd.argoproj.io/sync-wave: "-2"
