@@ -15,10 +15,15 @@ vault:
     ingress:
       enabled: true
       annotations:
-        route.openshift.io/termination: edge   
+        route.openshift.io/termination: edge  
+        cert-manager.io/cluster-issuer: letsencrypt-staging-cip
       hosts:
         - host: vault.apps.cluster1.mcp.pitagora.at
           paths: []
+      tls: 
+        - secretName: vault-server-tls
+          hosts:
+            - vault.apps.cluster1.mcp.pitagora.at
     extraInitContainers:
       - name: utility-downloader
         image: alpine/curl:latest
