@@ -23,21 +23,13 @@ loki:
   gateway:
     ingress:
       enabled: true
-      ingressClassName: nginx
       annotations:
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-        cert-manager.io/cluster-issuer: letsencrypt-staging
+        route.openshift.io/termination: edge   
       hosts:
         - host: logs-monitoring.apps.cluster1.mcp.pitagora.at
           paths:
             - path: /
               pathType: Prefix
-      tls:
-        - secretName: loki-gateway-tls
-          hosts:
-            - logs-monitoring.apps.cluster1.mcp.pitagora.at
-
   deploymentMode: SingleBinary
   singleBinary:
     replicas: 1

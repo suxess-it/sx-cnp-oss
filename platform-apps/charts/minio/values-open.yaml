@@ -28,29 +28,16 @@ minio:
     privateKey: tls.key
   consoleIngress:
     enabled: true
-    ingressClassName: nginx
     annotations:
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-        cert-manager.io/cluster-issuer: letsencrypt-staging
+      route.openshift.io/termination: edge   
     path: /
     hosts:
       - minio-console.apps.cluster1.mcp.pitagora.at
-    tls: 
-      - secretName: minio-console-tls
-        hosts:
-          - minio-console.apps.cluster1.mcp.pitagora.at
   ingress:
     enabled: true
     ingressClassName: nginx
     annotations:
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-        cert-manager.io/cluster-issuer: letsencrypt-staging
+      route.openshift.io/termination: edge   
     path: /
     hosts:
       - minio.apps.cluster1.mcp.pitagora.at
-    tls: 
-      - secretName: minio-server-tls
-        hosts:
-          - minio.apps.cluster1.mcp.pitagora.at

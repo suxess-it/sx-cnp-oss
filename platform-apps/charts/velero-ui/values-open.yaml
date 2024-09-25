@@ -14,18 +14,9 @@ vui:
   uiIngress:
     enabled: true
     host: velero-ui.apps.cluster1.mcp.pitagora.at
-    ingressClassName: nginx
     metadata:
       annotations:
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-        cert-manager.io/cluster-issuer: letsencrypt-staging
-    spec:
-      tls:
-        - secretName: velero-ui-tls
-          hosts:
-            - velero-ui.apps.cluster1.mcp.pitagora.at
-  
+        route.openshift.io/termination: edge   
   uiNp: # NodePort
     enabled: false
     ip: ""
