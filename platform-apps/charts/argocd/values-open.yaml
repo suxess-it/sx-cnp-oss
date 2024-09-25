@@ -37,11 +37,15 @@ argo-cd:
 
   server:
     ingress:
-      ingressClassName: nginx
       enabled: true
       annotations: 
         route.openshift.io/termination: edge   
-
+        cert-manager.io/cluster-issuer: letsencrypt-staging-cip
+      extraTls:
+        - hosts:
+          - argocd.apps.cluster1.mcp.pitagora.at
+          # Based on the ingress controller used secret might be optional
+          secretName: argocd-server-tls
     extensions:
       enabled: true
       contents:

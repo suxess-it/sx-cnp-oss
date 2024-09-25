@@ -30,9 +30,14 @@ minio:
     enabled: true
     annotations:
       route.openshift.io/termination: edge   
+      cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
     path: /
     hosts:
       - minio-console.apps.cluster1.mcp.pitagora.at
+    tls: 
+      - secretName: minio-console-tls
+        hosts:
+          - minio-console.apps.cluster1.mcp.pitagora.at
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -41,3 +46,7 @@ minio:
     path: /
     hosts:
       - minio.apps.cluster1.mcp.pitagora.at
+    tls: 
+      - secretName: minio-server-tls
+        hosts:
+          - minio.apps.cluster1.mcp.pitagora.at

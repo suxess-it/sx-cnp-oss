@@ -24,12 +24,17 @@ loki:
     ingress:
       enabled: true
       annotations:
-        route.openshift.io/termination: edge   
+        route.openshift.io/termination: edge
+        cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
       hosts:
         - host: logs-monitoring.apps.cluster1.mcp.pitagora.at
           paths:
             - path: /
               pathType: Prefix
+      tls:
+        - secretName: loki-gateway-tls
+          hosts:
+            - logs-monitoring.apps.cluster1.mcp.pitagora.at
   deploymentMode: SingleBinary
   singleBinary:
     replicas: 1

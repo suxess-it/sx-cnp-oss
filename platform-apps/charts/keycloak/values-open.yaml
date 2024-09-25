@@ -6,7 +6,7 @@ secrets:
       name: postgres
       password: postgres
   tls:
-    name: # disable for openshift
+    name: keycloak-server-tls
   keycloak:
     name: keycloak-secrets
     admin:
@@ -33,7 +33,8 @@ deployments:
       path: /var/lib/postgresql/data
   ingress:
     annotations:
-      route.openshift.io/termination: edge   
+      route.openshift.io/termination: edge
+      cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
     fqdn: .apps.cluster1.mcp.pitagora.at # add to prefix keycloak in templates
   keycloak:
     version: 25.0.2

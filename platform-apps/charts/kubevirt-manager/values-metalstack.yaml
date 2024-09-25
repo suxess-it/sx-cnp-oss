@@ -1,15 +1,14 @@
 cert:
   enabled: true
 
-gardenercert:
-  enabled: false
-
 deployment:
   version: 1.3.3
   tls: 
     name: kubevirt-manager-server-tls
   ingress:
     host: kubevirt-manager-metalstack.platform-engineer.cloud
+    annotations:
+    className: nginx
   service:
     name: kubevirt-manager
     port: 8080

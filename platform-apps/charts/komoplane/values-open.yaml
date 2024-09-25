@@ -71,12 +71,9 @@ komoplane:
 
   ingress:
     enabled: true
-    className: nginx
     annotations: 
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-        cert-manager.io/cluster-issuer: letsencrypt-staging
-
+      route.openshift.io/termination: edge
+      cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
     labels: { }
     hosts:
       - host: komoplane.apps.cluster1.mcp.pitagora.at
@@ -87,7 +84,6 @@ komoplane:
       - hosts:
         - komoplane.apps.cluster1.mcp.pitagora.at
         secretName: komoplane-server-tls
-
   autoscaling:
     enabled: false
     minReplicas: 1

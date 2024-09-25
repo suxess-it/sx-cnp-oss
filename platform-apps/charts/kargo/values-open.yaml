@@ -10,8 +10,9 @@ kargo:
       enabled: true
       annotations:
         route.openshift.io/termination: edge   
+        cert-manager.io/cluster-issuer: letsencrypt-staging-cip
       tls:
-        enabled: false
+        enabled: true
         selfSignedCert: false
     tls:
       enabled: false

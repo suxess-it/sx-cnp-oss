@@ -3,9 +3,10 @@ backstage:
     enabled: true
     host: portal.apps.cluster1.mcp.pitagora.at
     annotations:
-      route.openshift.io/termination: edge   
+      route.openshift.io/termination: edge
+      cert-manager.io/cluster-issuer: letsencrypt-staging-cip
     tls:
-      enabled: false
+      enabled: true
       secretName: backstage-tls
 
   backstage:

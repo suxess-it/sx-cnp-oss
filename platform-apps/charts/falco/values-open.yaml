@@ -30,11 +30,16 @@ falco:
         enabled: true
         annotations:
           route.openshift.io/termination: edge   
+          cert-manager.io/cluster-issuer: letsencrypt-staging-cip
         hosts:
           - host: falco.apps.cluster1.mcp.pitagora.at
             paths:
               - path: /
                 pathType: Prefix
+        tls:
+            - secretName: falco-server-tls
+              hosts:
+                - falco.apps.cluster1.mcp.pitagora.at
     replicaCount: 1
     serviceMonitor:
       enabled: true

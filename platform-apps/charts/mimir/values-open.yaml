@@ -4,11 +4,16 @@ mimir:
       enabled: true
       annotations:
         route.openshift.io/termination: edge   
+        cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
       hosts:
         - host: metrics-monitoring.apps.cluster1.mcp.pitagora.at
           paths:
             - path: /
               pathType: Prefix
+      tls:
+        - secretName: mimir-nginx-tls
+          hosts:
+            - metrics-monitoring.apps.cluster1.mcp.pitagora.at
   mimir:
     structuredConfig:
       limits:

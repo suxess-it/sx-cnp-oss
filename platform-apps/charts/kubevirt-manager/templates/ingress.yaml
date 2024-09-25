@@ -3,25 +3,20 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: "{{ .Values.deployment.service.name }}"
-{{- if .Values.gardenercert.enabled }}
+  {{- with .Values.deployment.ingress.annotations }}
   annotations:
-    cert.gardener.cloud/purpose: managed
-    dns.gardener.cloud/class: garden
-    dns.gardener.cloud/dnsnames: {{ .Values.gardenercert.dnsnames }}
-    dns.gardener.cloud/ttl: "180"
-{{- end }}
-{{- if not .Values.deployment.tls.name }}
-  annotations:
-    route.openshift.io/termination: edge   
-{{- end }}
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
 spec:
-{{- if .Values.deployment.tls.name }}
-  ingressClassName: nginx
+  {{- if .Values.deployment.ingress.className }}
+  ingressClassName: {{ .Values.deployment.ingress.className | quote }}
+  {{- end }}
   tls:
     - hosts:
         - "{{ .Values.deployment.ingress.host }}"
       secretName: "{{ .Values.deployment.tls.name }}"
-{{- end }}
   rules:
     - host: "{{ .Values.deployment.ingress.host }}"
       http:

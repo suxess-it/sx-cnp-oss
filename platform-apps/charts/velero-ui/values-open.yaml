@@ -16,7 +16,13 @@ vui:
     host: velero-ui.apps.cluster1.mcp.pitagora.at
     metadata:
       annotations:
-        route.openshift.io/termination: edge   
+        route.openshift.io/termination: edge
+        cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
+    spec:
+      tls:
+        - secretName: velero-ui-tls
+          hosts:
+            - velero-ui.apps.cluster1.mcp.pitagora.at
   uiNp: # NodePort
     enabled: false
     ip: ""
