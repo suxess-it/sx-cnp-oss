@@ -4,9 +4,9 @@ backstage:
     className: nginx
     host: portal.apps.cluster1.mcp.pitagora.at
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-staging
+      route.openshift.io/termination: edge   
     tls:
-      enabled: true
+      enabled: false
       secretName: backstage-tls
 
   backstage:
