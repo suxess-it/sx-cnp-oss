@@ -40,14 +40,8 @@ argo-cd:
       ingressClassName: nginx
       enabled: true
       annotations: 
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-        cert-manager.io/cluster-issuer: letsencrypt-staging
-      extraTls:
-        - hosts:
-          - argocd.apps.cluster1.mcp.pitagora.at
-          # Based on the ingress controller used secret might be optional
-          secretName: argocd-server-tls
+        route.openshift.io/termination: edge   
+
     extensions:
       enabled: true
       contents:
