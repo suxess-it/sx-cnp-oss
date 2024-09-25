@@ -10,12 +10,18 @@ metadata:
     dns.gardener.cloud/dnsnames: {{ .Values.gardenercert.dnsnames }}
     dns.gardener.cloud/ttl: "180"
 {{- end }}
+{{- if not .Values.deployment.tls.name }}
+  annotations:
+    route.openshift.io/termination: edge   
+{{- end }}
 spec:
+{{- if .Values.deployment.tls.name }}
   ingressClassName: nginx
   tls:
     - hosts:
         - "{{ .Values.deployment.ingress.host }}"
       secretName: "{{ .Values.deployment.tls.name }}"
+{{- end }}
   rules:
     - host: "{{ .Values.deployment.ingress.host }}"
       http:

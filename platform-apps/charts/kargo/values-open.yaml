@@ -8,11 +8,10 @@ kargo:
     ingress:
       ## @param api.ingress.enabled Whether to enable ingress. By default, this is disabled. Enabling ingress is advanced usage.
       enabled: true
-      ingressClassName: nginx
       annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-staging
+        route.openshift.io/termination: edge   
       tls:
-        enabled: true
+        enabled: false
         selfSignedCert: false
     tls:
       enabled: false
