@@ -14,18 +14,11 @@ vault:
   server:
     ingress:
       enabled: true
-      ingressClassName: nginx
       annotations:
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-        cert-manager.io/cluster-issuer: letsencrypt-staging   
+        route.openshift.io/termination: edge   
       hosts:
         - host: vault.apps.cluster1.mcp.pitagora.at
           paths: []
-      tls: 
-        - secretName: vault-server-tls
-          hosts:
-            - vault.apps.cluster1.mcp.pitagora.at
     extraInitContainers:
       - name: utility-downloader
         image: alpine/curl:latest
