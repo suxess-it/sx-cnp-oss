@@ -6,7 +6,7 @@ secrets:
       name: postgres
       password: postgres
   tls:
-    name: keycloak-server-tls
+    name: # disable for openshift
   keycloak:
     name: keycloak-secrets
     admin:

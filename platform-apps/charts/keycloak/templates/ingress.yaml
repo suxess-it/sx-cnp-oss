@@ -14,10 +14,12 @@ spec:
   {{- if .Values.deployments.ingress.className }}
   ingressClassName: {{ .Values.deployments.ingress.className | quote }}
   {{- end }}
+  {{- if .Values.secrets.tls.name }}
   tls:
     - hosts:
         - "keycloak{{ .Values.deployments.ingress.fqdn }}"
       secretName: "{{ .Values.secrets.tls.name }}"
+  {{- end }}
   rules:
     - host: "keycloak{{ .Values.deployments.ingress.fqdn }}"
       http:
