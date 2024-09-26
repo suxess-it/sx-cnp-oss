@@ -1,5 +1,5 @@
 eso:
-  providerUrl: "https://vault.apps.cluster1.mcp.pitagora.at"
+  providerUrl: "http://sx-vault-active.vault.svc.cluster.local:8200"
   backendName: vault-backend
   secretStore: sx-cnp-oss-kv
   # oidc config
