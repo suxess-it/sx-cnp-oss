@@ -2,8 +2,8 @@ kyverno:
   backgroundController:
     resources:
       limits:
-        memory: 1Gi
+        memory: 2Gi
   reportsController:
     resources:
       limits:
-        memory: 1Gi
+        memory: 2Gi
