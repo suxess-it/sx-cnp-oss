@@ -6,8 +6,8 @@ falco:
 
   driver:
     enabled: true
-    #kind: ebpf
-    kind: modern-bpf
+    kind: ebpf
+    #kind: modern-bpf
     kubernetes:
       enabled: true
 
