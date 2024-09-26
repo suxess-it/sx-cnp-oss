@@ -52,7 +52,7 @@ grafana:
     enabled: true
     annotations:
       route.openshift.io/termination: edge
-      cert-manager.io/cluster-issuer: letsencrypt-staging-cip
+      cert-manager.io/cluster-issuer: letsencrypt-staging-open
     hosts: [grafana.apps.cluster1.mcp.pitagora.at]
     tls:
       - secretName: grafana-server-tls

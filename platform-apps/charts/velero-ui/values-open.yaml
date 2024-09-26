@@ -17,7 +17,7 @@ vui:
     metadata:
       annotations:
         route.openshift.io/termination: edge
-        cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
+        cert-manager.io/cluster-issuer: letsencrypt-staging-open
     spec:
       tls:
         - secretName: velero-ui-tls

@@ -30,7 +30,7 @@ minio:
     enabled: true
     annotations:
       route.openshift.io/termination: edge   
-      cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
+      cert-manager.io/cluster-issuer: letsencrypt-staging-open
     path: /
     hosts:
       - minio-console.apps.cluster1.mcp.pitagora.at

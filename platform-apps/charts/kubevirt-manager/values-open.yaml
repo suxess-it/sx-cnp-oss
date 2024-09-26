@@ -10,7 +10,7 @@ deployment:
     host: kubevirt-manager.apps.cluster1.mcp.pitagora.at
     annotations:
       route.openshift.io/termination: edge
-      cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
+      cert-manager.io/cluster-issuer: letsencrypt-staging-open
   service:
     name: kubevirt-manager
     port: 8080

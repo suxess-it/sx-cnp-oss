@@ -40,7 +40,7 @@ argo-cd:
       enabled: true
       annotations: 
         route.openshift.io/termination: edge   
-        cert-manager.io/cluster-issuer: letsencrypt-staging-cip
+        cert-manager.io/cluster-issuer: letsencrypt-staging-open
       extraTls:
         - hosts:
           - argocd.apps.cluster1.mcp.pitagora.at

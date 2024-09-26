@@ -34,7 +34,7 @@ deployments:
   ingress:
     annotations:
       route.openshift.io/termination: edge
-      cert-manager.io/cluster-issuer: letsencrypt-staging-cip  
+      cert-manager.io/cluster-issuer: letsencrypt-staging-open
     fqdn: .apps.cluster1.mcp.pitagora.at # add to prefix keycloak in templates
   keycloak:
     version: 25.0.2
