@@ -7,19 +7,22 @@ falco:
   driver:
     enabled: true
     kind: ebpf
+    loader:
+      initContainer:
+        image:
+          repository: falcosecurity/falco-driver-loader-legacy
     #kind: modern-bpf
     kubernetes:
       enabled: true
 
   falco:
-    grpc:
-      enabled: true
-      bind_address: "unix:///run/falco/falco.sock"
-    # when threadiness is 0, Falco automatically guesses it depending on the number of online cores
-      threadiness: 0
+    json_output: true
+    json_include_output_property: true
+    log_syslog: false
+    log_level: info
 
     grpc_output:
-      enabled: true
+      enabled: false
 
   falcosidekick:
     enabled: true
