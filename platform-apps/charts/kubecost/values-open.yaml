@@ -28,10 +28,14 @@ cost-analyzer:
   ingress:
     enabled: true
     annotations:
-      route.openshift.io/termination: edge   
+      route.openshift.io/termination: edge
+      cert-manager.io/cluster-issuer: letsencrypt-staging-open
     hosts:
       - kubecost.apps.cluster1.mcp.pitagora.at
-
+    tls: 
+      - secretName: kubecost-server-tls
+        hosts:
+          - kubecost.apps.cluster1.mcp.pitagora.at
   # Define persistence volume for cost-analyzer, more information at https://docs.kubecost.com/install-and-configure/install/storage
   persistentVolume:
     size: 5Gi
