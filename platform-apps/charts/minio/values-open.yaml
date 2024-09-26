@@ -40,7 +40,6 @@ minio:
           - minio-console.apps.cluster1.mcp.pitagora.at
   ingress:
     enabled: true
-    ingressClassName: nginx
     annotations:
       route.openshift.io/termination: edge   
     path: /
