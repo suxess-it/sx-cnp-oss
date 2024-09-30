@@ -1,4 +1,4 @@
-{{ if has "add-ns-quota" .Values.kyvernoPolicies }}
+{{- if has "add-ns-quota" .Values.kyvernoPolicies }}
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
