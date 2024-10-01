@@ -1,6 +1,6 @@
 mimir:
   global:
-    dnsService: coredns
+    dnsService: dns-default
     dnsNamespace: openshift-dns
   nginx:
     ingress:
