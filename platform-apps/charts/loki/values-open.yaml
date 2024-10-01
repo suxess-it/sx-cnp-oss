@@ -1,4 +1,7 @@
 loki:
+  global:
+    dnsService: dns-default
+    dnsNamespace: openshift-dns
   loki:
     commonConfig:
       replication_factor: 1
