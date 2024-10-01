@@ -1,7 +1,7 @@
 mimir:
   global:
     dnsService: coredns
-#    dnsNamespace: kube-system
+    dnsNamespace: openshift-dns
   nginx:
     ingress:
       enabled: true
