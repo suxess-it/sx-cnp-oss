@@ -1,4 +1,7 @@
 mimir:
+  global:
+    dnsService: coredns
+#    dnsNamespace: kube-system
   nginx:
     ingress:
       enabled: true
