@@ -14,6 +14,8 @@ apiVersion: pkg.crossplane.io/v1beta1
 kind: DeploymentRuntimeConfig
 metadata:
   name: serviceaccount
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
 spec:
 # var 1
 #  deploymentTemplate:
