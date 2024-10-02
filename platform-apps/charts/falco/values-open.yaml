@@ -6,11 +6,11 @@ falco:
 
   driver:
     enabled: true
-    kind: ebpf
-    loader:
-      initContainer:
-        image:
-          repository: falcosecurity/falco-driver-loader-legacy
+    kind: kmod
+  #  loader:
+  #    initContainer:
+  #      image:
+  #        repository: falcosecurity/falco-driver-loader-legacy
     #kind: modern-bpf
     kubernetes:
       enabled: true
