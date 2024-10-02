@@ -66,6 +66,9 @@ velero:
       name: velero
   credentials:
     existingSecret: velero-cloud-credential 
+  nodeAgent:
+    containerSecurityContext:
+      privileged: true
   snapshotsEnabled: true
   deployNodeAgent: true
   configMaps:
