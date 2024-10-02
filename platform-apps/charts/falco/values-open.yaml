@@ -10,9 +10,7 @@ falco:
     loader:
       initContainer:
         image:
-          registry: quay.io
-          repository: tosmi/falco-driver-loader
-          tag: 0.36.1-libelf-dev
+          repository: falcosecurity/falco-driver-loader-legacy
     #kind: modern-bpf
     kubernetes:
       enabled: true
