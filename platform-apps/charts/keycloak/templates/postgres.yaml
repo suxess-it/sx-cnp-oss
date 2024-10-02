@@ -44,7 +44,7 @@ spec:
             - containerPort: {{.Values.deployments.postgres.service.port}}
               name: "{{ .Values.deployments.postgres.service.name }}"
           securityContext:
-            privileged: false
+            privileged: true
           volumeMounts:
             - name: "{{ .Values.deployments.postgres.volume.name }}"
               mountPath: "{{ .Values.deployments.postgres.volume.path }}"
