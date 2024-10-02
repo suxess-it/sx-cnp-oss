@@ -13,6 +13,7 @@ vui:
 
   uiIngress:
     enabled: true
+    ingressClassName: openshift-default
     host: velero-ui.apps.cluster1.mcp.pitagora.at
     metadata:
       annotations:
