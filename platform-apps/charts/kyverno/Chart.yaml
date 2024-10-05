@@ -25,6 +25,6 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: kyverno
-    version: 3.2.6
+    version: 3.2.7
     repository: https://kyverno.github.io/kyverno/
 
