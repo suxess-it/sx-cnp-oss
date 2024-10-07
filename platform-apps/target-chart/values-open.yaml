@@ -37,6 +37,11 @@ applications:
       argocd.argoproj.io/sync-wave: "-8"
   
   - name: kargo
+    ignoreDifferences:
+    - group: ...
+      kind: Serviceaccount
+      jsonPointers:
+      - /imagePullSecrets
 
   - name: kubecost
 

@@ -7,7 +7,7 @@ mimir:
       enabled: true
       annotations:
         route.openshift.io/termination: edge   
-        cert-manager.io/cluster-issuer: letsencrypt-staging-open
+        cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
         - host: metrics-monitoring.apps.cluster1.mcp.pitagora.at
           paths:
