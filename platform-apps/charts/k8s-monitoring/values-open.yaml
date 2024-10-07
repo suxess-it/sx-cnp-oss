@@ -135,3 +135,6 @@ k8s-monitoring:
       honor_labels = true
       forward_to   = [prometheus.relabel.metrics_service.receiver]
     }
+
+  prometheus-node-exporter:
+    enabled: false
