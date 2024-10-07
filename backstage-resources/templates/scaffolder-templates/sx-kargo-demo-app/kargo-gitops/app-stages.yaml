@@ -4,13 +4,25 @@ repoUrl: https://github.com/suxess-it/${{values.team}}-${{values.application_id}
 createAppNamespace: true
 stages:
   - name: "test"
-    subscriptions: 
-      warehouse: "warehouse-{{ .Values.appName }}"
+    requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: warehouse-{{ .Values.appName }}
+      sources:
+        direct: true
   - name: "qa"
-    subscriptions: 
-      upstreamStages:
-      - name: test
+    requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: warehouse-{{ .Values.appName }}
+      sources:
+        stages:
+        - test
   - name: "prod"
-    subscriptions: 
-      upstreamStages:
-      - name: qa
+    requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: warehouse-{{ .Values.appName }}
+      sources:
+        stages:
+        - qa

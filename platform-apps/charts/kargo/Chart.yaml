@@ -25,5 +25,5 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: kargo
-    version: 0.7.1
+    version: 0.8.8
     repository: oci://ghcr.io/akuity/kargo-charts

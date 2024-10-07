@@ -19,6 +19,13 @@
 		"cpus": 4
 	},
 
+	"secrets": {
+		"KUBRIX_GITHUB_CLIENTSECRET": { },
+		"KUBRIX_GITHUB_CLIENTID": { },
+		"KUBRIX_GITHUB_TOKEN": { },
+		"KUBRIX_GITHUB_APPSET_TOKEN": { }
+	},
+
 	"postCreateCommand": "sudo cp .devcontainer/delivery/welcome.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt",
 
 	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
@@ -30,7 +37,7 @@
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 
-	"forwardPorts": [6688, 6689],
+	"forwardPorts": [6688, 6689,6691,6692],
 	"portsAttributes": {
 		"6688": {
 			"label": "argocd",
@@ -38,6 +45,14 @@
 		},
 		"6689": {
 			"label": "kargo",
+			"protocol": "http"
+		},
+	        "6691": {
+			"label": "backstage",
+			"protocol": "http"
+		},
+		"6692": {
+			"label": "keycloak",
 			"protocol": "http"
 		}
 	},

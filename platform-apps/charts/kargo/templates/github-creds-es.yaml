@@ -15,6 +15,9 @@ spec:
   target:
     name: github-creds
     template:
+      metadata:
+        labels:
+          kargo.akuity.io/cred-type: git
       data:
         password: "{{ `{{ .GITHUB_TOKEN }}` }}"
         username: "{{ `{{ .GITHUB_USERNAME }}` }}"

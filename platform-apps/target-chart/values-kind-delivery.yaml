@@ -37,6 +37,12 @@ applications:
     destinationNamespaceOverwrite: argocd
 
   - name: argo-rollouts
+
+  - name: keycloak
+
+  - name: backstage
+    annotations:
+      argocd.argoproj.io/sync-wave: "10"
       
 
 

@@ -1,0 +1,260 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "sx-keycloak-client-backstage-codespaces-password"
+type: Opaque
+stringData:
+  backstage-codespaces: demosecret
+---
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: backstage-codespaces
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    accessType: CONFIDENTIAL 
+    clientId: backstage-codespaces
+    name: backstage-codespaces
+    realmId: sx-cnp-oss-codespaces
+    directAccessGrantsEnabled: false
+    standardFlowEnabled: true
+    serviceAccountsEnabled: true
+  #    managementPolicies: ["Observe"]
+    validRedirectUris:
+      - "http://localhost:7007/api/auth/oidc/handler/frame"
+      - "https://BACKSTAGE_CODESPACES_REPLACE/api/auth/oidc/handler/frame"
+    clientSecretSecretRef:
+      key: backstage-codespaces
+      name: "sx-keycloak-client-backstage-codespaces-password"
+      namespace: keycloak
+    loginTheme: keycloak
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: realm.keycloak.crossplane.io/v1alpha1
+kind: Realm
+metadata:
+  name: sx-cnp-oss-codespaces
+  labels:
+    platform-engineer.cloud/realm: sx-cnp-oss-codespaces
+spec:
+  forProvider:
+    realm: sx-cnp-oss-codespaces
+    displayName: sx-cnp-oss-codespaces
+    attributes:
+      frontendUrl: https://KEYCLOAK_CODESPACES_REPLACE
+  deletionPolicy: "Delete"
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: user.keycloak.crossplane.io/v1alpha1
+kind: User
+metadata:
+  name: demouser1
+spec:
+  forProvider:
+    realmId: sx-cnp-oss-codespaces
+    username: demouser1
+    enabled: true
+    emailVerified: true
+    firstName: demo1
+    lastName: user
+    email: "demouser1@platform-engineer.cloud"
+    initialPassword:
+      - valueSecretRef:
+          name: "sx-keycloak-initial-passwords-codespace"
+          key: demouser1
+          namespace: keycloak
+        temporary: false # should be set to true in production
+  deletionPolicy: "Delete"
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "sx-keycloak-initial-passwords-codespace"
+type: Opaque
+stringData:
+  demouser1: test
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  name: team-codespace
+spec:
+  forProvider:
+    realmId: sx-cnp-oss-codespaces
+    name: team-codespace
+  deletionPolicy: "Delete"
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  name: backstage-codespaces-admin
+spec:
+  forProvider:
+    realmId: sx-cnp-oss-codespaces
+    name: backstage-codespaces-admin
+  deletionPolicy: "Delete"
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  name: admins-codespaces
+spec:
+  forProvider:
+    realmId: sx-cnp-oss-codespaces
+    name: backstage-codespaces-admin
+  deletionPolicy: "Delete"
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Memberships
+metadata:
+  name: backstage-codespaces-team-codespace-users-memberships
+spec:
+  forProvider:
+    groupIdRef:
+      name: team-codespace
+    members:
+      - demouser1
+    realmId: sx-cnp-oss-codespaces
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Memberships
+metadata:
+  name: backstage-codespaces-admins-users-memberships
+spec:
+  forProvider:
+    groupIdRef:
+      name: admins-codespaces
+    members:
+      - demoadmin
+    realmId: sx-cnp-oss-codespaces
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Memberships
+metadata:
+  name: backstage-codespaces-admin-memberships
+spec:
+  forProvider:
+    groupIdRef:
+      name: backstage-codespaces-admin
+    members:
+      - service-account-backstage-codespaces
+    realmId:  sx-cnp-oss-codespaces
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientDefaultScopes
+metadata:
+  name: client-default-scopes-codespaces
+spec:
+  forProvider:
+    clientIdRef:
+      name: backstage-codespaces
+    defaultScopes:
+    - profile
+    - email
+    - roles
+    - web-origins
+    - groups
+    - acr
+    realmIdRef:
+      name: sx-cnp-oss-codespaces
+  providerConfigRef:
+    name: "sx-keycloak-config"
+---
+apiVersion: keycloak.crossplane.io/v1alpha1
+kind: XBuiltinObjects
+metadata:
+  name: keycloak-builtin-objects-sx-cnp-oss-codespaces
+spec:
+  providerConfigName: sx-keycloak-config
+  providerSecretName: keycloak-credentials-cp
+  realm: sx-cnp-oss-codespaces
+  builtinClients: 
+    - account
+    - account-console
+    - admin-cli
+    - broker
+    - realm-management
+    - security-admin-console
+  builtinRealmRoles:
+    - offline_access
+    - uma_authorization
+---
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Roles
+metadata:
+  name: backstage-codespaces-default-group-roles
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    exhaustive: false
+    groupIdRef:
+      name: backstage-codespaces-admin
+    realmIdRef: 
+      name: sx-cnp-oss-codespaces
+    roleIdsRefs:
+      - name: builtin-sx-cnp-oss-codespaces-realm-management-view-users
+      - name: builtin-sx-cnp-oss-codespaces-realm-management-query-groups
+      - name: builtin-sx-cnp-oss-codespaces-realm-management-query-users
+    roleIdsSelector:
+      matchLabels:
+        defaultRole: 'true'
+        realmName: sx-cnp-oss-codespaces
+  initProvider: {}
+  managementPolicies:
+    - '*'
+  providerConfigRef:
+    name: sx-keycloak-config
+---
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientScope
+metadata:
+  labels:
+    platform-engineer.cloud/clientscope: groups
+  name: openid-client-scope-groups-codespaces
+spec:
+  forProvider:
+    description: When requested, this scope will map a user's group memberships to a claim
+    guiOrder: 1
+    consentScreenText: "groups"
+    includeInTokenScope: true
+    name: groups
+    realmIdRef:
+      name: sx-cnp-oss-codespaces
+  providerConfigRef:
+    name: sx-keycloak-config
+---
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientScope
+metadata:
+  labels:
+    platform-engineer.cloud/clientscope: groups
+  name: openid-client-scope-openid-codespaces
+spec:
+  forProvider:
+    description: When requested, add openid scope
+    guiOrder: 1
+    consentScreenText: "openid"
+    includeInTokenScope: true
+    name: openid
+    realmIdRef:
+      name: sx-cnp-oss-codespaces
+  providerConfigRef:
+    name: sx-keycloak-config

@@ -30,7 +30,7 @@
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 
-	"forwardPorts": [6688, 6691],
+	"forwardPorts": [6688, 6691, 6692],
 	"portsAttributes": {
 		"6688": {
 			"label": "argocd",
@@ -38,6 +38,10 @@
 		},
 		"6691": {
 			"label": "backstage",
+			"protocol": "http"
+		},
+		"6692": {
+			"label": "keycloak",
 			"protocol": "http"
 		}
 	},

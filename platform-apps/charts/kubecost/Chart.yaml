@@ -26,5 +26,5 @@ appVersion: "1.0.0"
 dependencies:
   - name: cost-analyzer
     alias: cost-analyzer
-    version: 2.4.0
+    version: 2.4.1
     repository: https://kubecost.github.io/cost-analyzer

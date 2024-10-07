@@ -25,5 +25,5 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: vui
-    version: 0.1.16
+    version: 0.1.17
     repository: https://seriohub.github.io/velero-helm/

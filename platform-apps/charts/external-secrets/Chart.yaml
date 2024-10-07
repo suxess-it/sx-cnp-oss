@@ -26,5 +26,5 @@ appVersion: "1.0.0"
 dependencies:
   - name: external-secrets
     alias: external-secrets
-    version: 0.10.3
+    version: 0.10.4
     repository: https://charts.external-secrets.io

@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: test sx-cnp-oss k3d stack on kind cluster
+name: test kubriX k3d stack on kind cluster
 
 # Controls when the workflow will run
 on:
@@ -18,7 +18,8 @@ concurrency:
 
 env:
   CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
-
+  CURRENT_REPOSITORY: ${{ github.repository }}
+  
 jobs:
   create-cluster:
     runs-on: ubuntu-latest
@@ -64,7 +65,7 @@ jobs:
           GITHUB_APPSET_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          curl -L https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/install-platform.sh | bash
+          curl -L https://raw.githubusercontent.com/${CURRENT_REPOSITORY}/${CURRENT_BRANCH}/install-platform.sh | bash
 
       - name: argocd show diff
         if: always()
@@ -72,7 +73,7 @@ jobs:
           TARGET_TYPE: ${{ matrix.target-type }}
         shell: bash
         run: |
-          URL=https://raw.githubusercontent.com/suxess-it/sx-cnp-oss/${CURRENT_BRANCH}/platform-apps/target-chart/values-$(echo ${TARGET_TYPE} | awk '{print tolower($0)}').yaml
+          URL=https://raw.githubusercontent.com/${CURRENT_REPOSITORY}/${CURRENT_BRANCH}/platform-apps/target-chart/values-$(echo ${TARGET_TYPE} | awk '{print tolower($0)}').yaml
           argocd_apps=$(curl -L $URL | awk '/^  - name:/ { printf "%s", "sx-"$3" "}' )
           curl -kL -o argocd https://argocd-127-0-0-1.nip.io/download/argocd-linux-amd64
           chmod u+x argocd
