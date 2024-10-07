@@ -22,7 +22,7 @@ falco:
     log_level: info
 
     grpc_output:
-      enabled: false
+      enabled: true
 
   falcosidekick:
     enabled: true
