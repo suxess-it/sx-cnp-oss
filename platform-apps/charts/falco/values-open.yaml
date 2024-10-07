@@ -23,6 +23,8 @@ falco:
 
     grpc_output:
       enabled: true
+      bind_address: "unix:///run/falco/falco.sock"
+      threadiness: 0
 
   falcosidekick:
     enabled: true
@@ -33,7 +35,7 @@ falco:
         enabled: true
         annotations:
           route.openshift.io/termination: edge   
-          cert-manager.io/cluster-issuer: letsencrypt-staging-cip
+          cert-manager.io/cluster-issuer: letsencrypt-prod-open
         hosts:
           - host: falco.apps.cluster1.mcp.pitagora.at
             paths:
