@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod-open
+spec:
+  acme:
+    email: support@suxess-it.com
+    preferredChain: ''
+    privateKeySecretRef:
+      name: letsencrypt-prod-open
+    server: 'https://acme-v02.api.letsencrypt.org/directory'
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: openshift-default
