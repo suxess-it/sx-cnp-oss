@@ -6,6 +6,7 @@ trivy-operator:
     enabled: true
   trivyOperator:
     reportResourceLabels: "backstage.io/kubernetes-id"
+    scanJobCompressLogs: false
   trivy:
     ignoreUnfixed: true
     timeout: "10m0s"
