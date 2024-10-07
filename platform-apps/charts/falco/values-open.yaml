@@ -23,6 +23,8 @@ falco:
 
     grpc_output:
       enabled: true
+    grpc:
+      enabled: true
       bind_address: "unix:///run/falco/falco.sock"
       threadiness: 0
 
@@ -32,6 +34,7 @@ falco:
       enabled: true
       replicaCount: 1
       ingress:
+        ingressClassName: "openshift-default"
         enabled: true
         annotations:
           route.openshift.io/termination: edge   
