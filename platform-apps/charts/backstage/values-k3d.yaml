@@ -44,7 +44,7 @@ backstage:
           # host: 127.0.0.1
         csp:
           connect-src: ["'self'", 'http:', 'https:']
-          frame-src: ['*.nip.io']
+          frame-src: ['*.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-nip.io}']
           # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
           # Default Helmet Content-Security-Policy values can be removed by setting the key to false
         cors:
@@ -226,9 +226,9 @@ backstage:
               #baseUrl: https://keycloak-127-0-0-1.nip.io
               # workaround
               baseUrl: http://keycloak-service.keycloak.svc.cluster.local:8080
-              loginRealm: sx-cnp-oss
-              realm: sx-cnp-oss
-              clientId: backstage
+              loginRealm: sx-cnp-oss-codespaces
+              realm: sx-cnp-oss-codespaces
+              clientId: backstage-codespaces
               clientSecret: 'demosecret'
               schedule: # Mandatory; same options as in TaskScheduleDefinition
                 # supports cron, ISO duration, "human duration" as used in code
