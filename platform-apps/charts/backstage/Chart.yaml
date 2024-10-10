@@ -25,6 +25,6 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: backstage
-    version: 1.9.6
+    version: 1.10.0
     repository: https://backstage.github.io/charts
 
